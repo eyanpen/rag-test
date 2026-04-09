@@ -25,8 +25,13 @@ err()  { echo -e "\033[1;31m[$(date +%H:%M:%S)] ERROR: $*\033[0m"; }
 ts()   { date +%s; }
 
 # ── 1. 安装依赖 ──
-log "Step 1/6: 安装 Python 依赖..."
-pip install -q datasets fast-graphrag openai aiohttp tqdm transformers torch 2>&1 | tail -3
+log "Step 1/6: 检查 Python 依赖..."
+if python3 -c "import datasets, fast_graphrag, openai, aiohttp, tqdm, transformers, torch" 2>/dev/null; then
+  log "  所有依赖已安装，跳过安装步骤 ✅"
+else
+  log "  部分依赖缺失，开始安装..."
+  pip install -q datasets fast-graphrag openai aiohttp tqdm transformers torch 2>&1 | tail -3
+fi
 
 # ── 2. 连通性检查 ──
 log "Step 2/6: 检查 API 连通性..."

@@ -22,6 +22,14 @@ from fast_graphrag._llm import OpenAILLMService, OpenAIEmbeddingService
 
 # ── HTTP 请求计时与统计 ──
 import httpx
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("run_fast_graphrag_test.log", mode="w", encoding="utf-8"),
+    ],
+)
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +39,7 @@ _stats: List[float] = []  # durations collected in current window
 
 # ── 自适应并发控制 ──
 _CONCURRENCY_MIN = 2
-_CONCURRENCY_MAX = 20
+_CONCURRENCY_MAX = 50
 _CONCURRENCY_INIT = 10
 _concurrency_lock = threading.Lock()
 _current_concurrency = _CONCURRENCY_INIT
@@ -129,14 +137,6 @@ def _start_stats_thread():
     t = threading.Thread(target=_run, daemon=True)
     t.start()
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("run_fast_graphrag_test.log", mode="a", encoding="utf-8"),
-    ],
-)
 
 # ── fast-graphrag 配置常量 ──
 DOMAIN = (
