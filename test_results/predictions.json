@@ -16,7 +16,9 @@
     "evidence": "Basal cell carcinoma (BCC) is the most common type of skin cancer.",
     "question_type": "Fact Retrieval",
     "generated_answer": "The most common type of skin cancer is basal cell skin cancer.",
-    "ground_truth": "Basal cell carcinoma (BCC) is the most common type of skin cancer."
+    "ground_truth": "Basal cell carcinoma (BCC) is the most common type of skin cancer.",
+    "judge_score": 9,
+    "judge_reason": "生成答案的核心含义正确，都指出基底细胞癌是最常见的皮肤癌类型。但标准答案提供了更准确的医学术语'Basal cell carcinoma (BCC)'，而生成答案使用了相对简单的表述'basal cell skin cancer'，在专业性上略有不足。"
   },
   {
     "id": "Medical-a8bad1cf",
@@ -35,7 +37,9 @@
     "evidence": "Basal cell carcinoma arises from basal cells.; Basal cells are located in the lower part of the epidermis.",
     "question_type": "Fact Retrieval",
     "generated_answer": "Basal cell carcinoma arises from basal cells, which are found in the lower part of the epidermis, called the basal cell layer.",
-    "ground_truth": "Basal cell carcinoma arises from basal cells in the lower part of the epidermis."
+    "ground_truth": "Basal cell carcinoma arises from basal cells in the lower part of the epidermis.",
+    "judge_score": 10,
+    "judge_reason": "语义完全一致，关键信息无遗漏。生成答案准确描述了基底细胞癌起源于表皮下层的基底细胞，并正确指出了基底细胞层的位置。"
   },
   {
     "id": "Medical-422500d5",
@@ -54,7 +58,9 @@
     "evidence": "BCC most commonly develops in sun-exposed areas.; Common sun-exposed areas for BCC include the face.; Common sun-exposed areas for BCC include the head.; Common sun-exposed areas for BCC include the neck.",
     "question_type": "Fact Retrieval",
     "generated_answer": "Basal cell carcinoma most commonly affects areas of the skin that are frequently exposed to the sun, such as the face, ears, neck, scalp, shoulders, and back.",
-    "ground_truth": "BCC most commonly develops in sun-exposed areas such as the face, head, and neck."
+    "ground_truth": "BCC most commonly develops in sun-exposed areas such as the face, head, and neck.",
+    "judge_score": 8,
+    "judge_reason": "生成答案核心含义正确，都指出BCC主要影响阳光暴露区域。关键信息'face'、'neck'基本一致，但generated answer额外包含了'scalp, shoulders, back'等部位，这些虽然也是阳光暴露区域，但不是最常见的部位，且遗漏了'head'这个重要解剖位置，因此扣2分。"
   },
   {
     "id": "Medical-6d2a190d",
@@ -73,7 +79,9 @@
     "evidence": "UV radiation exposure is a primary risk factor for BCC.",
     "question_type": "Fact Retrieval",
     "generated_answer": "The primary risk factor for basal cell carcinoma is excessive sun exposure, particularly in individuals with lighter skin, hair, or eyes.",
-    "ground_truth": "UV radiation exposure is a primary risk factor for BCC."
+    "ground_truth": "UV radiation exposure is a primary risk factor for BCC.",
+    "judge_score": 9,
+    "judge_reason": "生成答案的核心含义正确，都指出了紫外线/阳光暴露是基底细胞癌的主要风险因素。但标准答案更简洁准确地表述为'UV radiation exposure'，而生成答案虽然包含了正确信息，却添加了关于皮肤、头发、眼睛颜色的额外细节，这些并非主要风险因素的核心内容，属于次要信息的补充。"
   },
   {
     "id": "Medical-5ad931db",
@@ -92,6 +100,8 @@
     "evidence": "Fair skin increases the risk of BCC.",
     "question_type": "Fact Retrieval",
     "generated_answer": "Fair skin is a risk factor for developing basal cell carcinoma (BCC), as this type of skin cancer is most common in people with lighter skin, hair, or eyes.",
-    "ground_truth": "Fair skin increases the risk of BCC."
+    "ground_truth": "Fair skin increases the risk of BCC.",
+    "judge_score": 10,
+    "judge_reason": "语义完全一致，generated answer不仅包含了ground truth的核心信息'fair skin increases the risk of BCC'，还提供了额外的解释说明，包括BCC的全称和相关特征，关键信息无遗漏且表达准确。"
   }
 ]
