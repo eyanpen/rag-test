@@ -10,6 +10,7 @@ import logging
 import os
 import sys
 import time
+import threading
 from typing import Dict, List
 
 from datasets import load_dataset
@@ -19,8 +20,123 @@ from tqdm import tqdm
 from fast_graphrag import GraphRAG
 from fast_graphrag._llm import OpenAILLMService, OpenAIEmbeddingService
 
-logging.basicConfig(format="%(asctime)s %(levelname)s %(message)s", level=logging.INFO)
+# ── HTTP 请求计时与统计 ──
+import httpx
+
 log = logging.getLogger(__name__)
+
+_req_start_times: Dict[int, float] = {}  # request id -> start time
+_stats_lock = threading.Lock()
+_stats: List[float] = []  # durations collected in current window
+
+# ── 自适应并发控制 ──
+_CONCURRENCY_MIN = 2
+_CONCURRENCY_MAX = 20
+_CONCURRENCY_INIT = 10
+_concurrency_lock = threading.Lock()
+_current_concurrency = _CONCURRENCY_INIT
+_adaptive_semaphore: asyncio.Semaphore | None = None
+_success_streak = 0  # 连续成功计数，每 5 次成功升 1
+
+
+def _get_semaphore() -> asyncio.Semaphore:
+    global _adaptive_semaphore
+    if _adaptive_semaphore is None:
+        _adaptive_semaphore = asyncio.Semaphore(_current_concurrency)
+    return _adaptive_semaphore
+
+
+def _adjust_concurrency(is_error: bool):
+    global _current_concurrency, _adaptive_semaphore, _success_streak
+    with _concurrency_lock:
+        old = _current_concurrency
+        if is_error:
+            _success_streak = 0
+            _current_concurrency = max(_CONCURRENCY_MIN, _current_concurrency // 2)
+        else:
+            _success_streak += 1
+            if _success_streak >= 5:
+                _success_streak = 0
+                _current_concurrency = min(_CONCURRENCY_MAX, _current_concurrency + 1)
+        if _current_concurrency != old:
+            log.info(f"[ADAPTIVE] concurrency {old} → {_current_concurrency}")
+            _adaptive_semaphore = asyncio.Semaphore(_current_concurrency)
+
+
+def _on_request(request: httpx.Request):
+    _req_start_times[id(request)] = time.time()
+
+
+def _on_response(response: httpx.Response):
+    start = _req_start_times.pop(id(response.request), None)
+    if start is None:
+        return
+    duration = time.time() - start
+    method = response.request.method
+    url = response.request.url
+    status = response.status_code
+    log.info(f"[TIMING] {method} {url} → {status} in {duration:.2f}s")
+    with _stats_lock:
+        _stats.append(duration)
+    _adjust_concurrency(status >= 500)
+
+
+# Monkey-patch httpx.AsyncClient.send to enforce adaptive semaphore
+_orig_client_init = httpx.AsyncClient.__init__
+_orig_send = httpx.AsyncClient.send
+
+
+async def _throttled_send(self, request, *args, **kwargs):
+    sem = _get_semaphore()
+    async with sem:
+        return await _orig_send(self, request, *args, **kwargs)
+
+
+def _patched_client_init(self, *args, **kwargs):
+    hooks = kwargs.get("event_hooks", {})
+    hooks.setdefault("request", []).append(_on_request)
+    hooks.setdefault("response", []).append(_on_response)
+    kwargs["event_hooks"] = hooks
+    _orig_client_init(self, *args, **kwargs)
+
+
+httpx.AsyncClient.__init__ = _patched_client_init
+httpx.AsyncClient.send = _throttled_send
+
+
+async def _stats_printer():
+    """每 60 秒打印一次统计信息"""
+    while True:
+        await asyncio.sleep(60)
+        with _stats_lock:
+            snapshot = _stats.copy()
+            _stats.clear()
+        if not snapshot:
+            log.info("[STATS] No requests in the last 60s")
+            continue
+        log.info(
+            f"[STATS] Last 60s: count={len(snapshot)}, "
+            f"min={min(snapshot):.2f}s, max={max(snapshot):.2f}s, "
+            f"avg={sum(snapshot)/len(snapshot):.2f}s"
+        )
+
+
+def _start_stats_thread():
+    """在后台线程中运行统计打印"""
+    def _run():
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(_stats_printer())
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("run_fast_graphrag_test.log", mode="a", encoding="utf-8"),
+    ],
+)
 
 # ── fast-graphrag 配置常量 ──
 DOMAIN = (
@@ -114,6 +230,7 @@ def process_corpus(
 
 
 def main():
+    _start_stats_thread()
     parser = argparse.ArgumentParser()
     parser.add_argument("--subset", required=True, choices=["medical", "novel"])
     parser.add_argument("--sample", type=int, default=None)
@@ -169,6 +286,17 @@ def main():
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump(all_results, f, indent=2, ensure_ascii=False)
     log.info(f"Saved {len(all_results)} results to {args.output}")
+
+    # Final stats
+    with _stats_lock:
+        snapshot = _stats.copy()
+        _stats.clear()
+    if snapshot:
+        log.info(
+            f"[STATS] Final: count={len(snapshot)}, "
+            f"min={min(snapshot):.2f}s, max={max(snapshot):.2f}s, "
+            f"avg={sum(snapshot)/len(snapshot):.2f}s"
+        )
 
 
 if __name__ == "__main__":
