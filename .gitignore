@@ -2,7 +2,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
-
+test_fast_graphrag_workspace/
 # C extensions
 *.so
 

@@ -63,11 +63,11 @@ def _adjust_concurrency(is_error: bool):
             _adaptive_semaphore = asyncio.Semaphore(_current_concurrency)
 
 
-def _on_request(request: httpx.Request):
+async def _on_request(request: httpx.Request):
     _req_start_times[id(request)] = time.time()
 
 
-def _on_response(response: httpx.Response):
+async def _on_response(response: httpx.Response):
     start = _req_start_times.pop(id(response.request), None)
     if start is None:
         return
