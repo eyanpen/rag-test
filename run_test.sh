@@ -5,15 +5,57 @@
 # ============================================================
 set -euo pipefail
 
+usage() {
+  cat <<EOF
+用法: $(basename "$0") [选项]
+
+  不带参数时显示此帮助信息。
+
+选项:
+  --run              执行测试流程（默认跳过已有 index，直接跑 query）
+  --full             强制全流程运行（重建 index）
+  --start-from N     从第 N 步开始执行（跳过之前的步骤，需要对应产物已存在）
+                       5 = 从 LLM-as-Judge 评分开始
+  --stop-after N     执行到第 N 步后退出
+                       2 = 连通性检查后退出
+  -h, --help         显示此帮助信息
+
+步骤说明:
+  Step 1/7  检查 Python 依赖
+  Step 2/7  检查 API 连通性
+  Step 3/7  运行 fast-graphrag 推理测试（index + query）
+  Step 4/7  验证输出
+  Step 5/7  LLM-as-Judge 评分
+  Step 6/7  质量抽检
+  Step 7/7  生成测试报告
+
+示例:
+  $(basename "$0") --run                 # 默认运行（跳过已有 index）
+  $(basename "$0") --run --full          # 强制全流程（重建 index）
+  $(basename "$0") --run --start-from 5  # 从 Judge 评分开始
+  $(basename "$0") --run --stop-after 2  # 只跑到连通性检查
+EOF
+  exit 0
+}
+
 STOP_AFTER=""
 FULL_RUN=false
+START_FROM=1
+RUN=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --run) RUN=true; shift ;;
     --stop-after) STOP_AFTER="$2"; shift 2 ;;
-    --full) FULL_RUN=true; shift ;;
-    *) echo "Unknown option: $1"; exit 1 ;;
+    --full) FULL_RUN=true; RUN=true; shift ;;
+    --start-from) START_FROM="$2"; RUN=true; shift 2 ;;
+    -h|--help) usage ;;
+    *) echo "Unknown option: $1"; echo "使用 -h 查看帮助"; exit 1 ;;
   esac
 done
+
+if ! $RUN; then
+  usage
+fi
 
 BASE_URL="http://10.210.156.69:8633"
 LLM_MODEL="Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
@@ -44,6 +86,18 @@ if ! $FULL_RUN && ls "$WORKSPACE"/*/graph_igraph_data.pklz &>/dev/null; then
   EMBED_OK=true
   log "检测到已有 index，跳过 Step 1-2 及 index，直接跑 query (使用 --full 强制全流程)"
 fi
+
+if [[ "$START_FROM" -ge 5 ]]; then
+  log "--start-from $START_FROM: 跳过 Step 1-4，从 Step $START_FROM 开始"
+  if [ ! -f "$RESULTS_DIR/predictions.json" ]; then
+    err "predictions.json 不存在，无法从 Step $START_FROM 开始"
+    exit 1
+  fi
+  TOTAL=$(python3 -c "import json; print(len(json.load(open('$RESULTS_DIR/predictions.json'))))")
+  ERRORS=$(python3 -c "import json; print(sum(1 for x in json.load(open('$RESULTS_DIR/predictions.json')) if 'error' in x))")
+  SUCCESS=$((TOTAL - ERRORS))
+  DURATION=0
+else
 
 if ! $SKIP_INDEX; then
 # ── 1. 安装依赖 ──
@@ -129,6 +183,8 @@ ERRORS=$(python3 -c "import json; print(sum(1 for x in json.load(open('$RESULTS_
 SUCCESS=$((TOTAL - ERRORS))
 
 log "  总计: $TOTAL, 成功: $SUCCESS, 失败: $ERRORS"
+
+fi # end START_FROM check
 
 # ── 5. LLM-as-Judge 评分 ──
 log "Step 5/7: LLM-as-Judge 评分..."
