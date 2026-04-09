@@ -5,6 +5,14 @@
 # ============================================================
 set -euo pipefail
 
+STOP_AFTER=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --stop-after) STOP_AFTER="$2"; shift 2 ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
 BASE_URL="http://10.210.156.69:8633"
 LLM_MODEL="Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
 EMBED_MODEL="Qwen/Qwen3-Embedding-8B"
@@ -61,6 +69,11 @@ fi
 if ! $LLM_OK || ! $EMBED_OK; then
   err "API 连通性检查失败，终止测试"
   exit 1
+fi
+
+if [[ "$STOP_AFTER" == "2" ]]; then
+  log "--stop-after 2: 连通性检查完成，退出"
+  exit 0
 fi
 
 # ── 3. 运行测试 ──

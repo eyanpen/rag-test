@@ -42,11 +42,22 @@ class EmbeddingModelConfig:
 class BenchmarkConfig:
     api_base_url: str = "http://10.210.156.69:8633"
     llm_model: str = "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
+    falkordb_host: str = "10.210.156.69"
+    falkordb_port: int = 6379
     sample_size: int = 5
     datasets: List[str] = field(default_factory=lambda: ["kevin_scott"])
-    models: List[EmbeddingModelConfig] = field(default_factory=list)
+    models: List["EmbeddingModelConfig"] = field(default_factory=lambda: EMBEDDING_MODELS)
     output_dir: str = "tests/benchmark_results"
     data_root: str = "graphrag-benchmarking-datasets/data"
+    graphrag_root: str = "/home/eyanpen/sourceCode/rnd-ai-engine-features/graphrag"
+
+@dataclass
+class DatasetPhaseResult:
+    """数据集 Phase 1-9 共享阶段结果"""
+    dataset_name: str
+    phase_1_9_time_seconds: float
+    output_dir: str
+    error: Optional[str] = None
 
 @dataclass
 class DatasetResult:
@@ -78,14 +89,15 @@ class ModelResult:
     dataset_name: str
     predictions: List[PredictionItem] = field(default_factory=list)
     evaluation: Optional[EvaluationResult] = None
-    index_time_seconds: float = 0.0
+    embedding_time_seconds: float = 0.0
     query_time_seconds: float = 0.0
     error: Optional[str] = None
 
 @dataclass
 class BenchmarkSummary:
     config: BenchmarkConfig
-    results: List[ModelResult] = field(default_factory=list)
+    dataset_phases: List[DatasetPhaseResult] = field(default_factory=list)
+    model_results: List[ModelResult] = field(default_factory=list)
     start_time: str = ""
     end_time: str = ""
     total_time_seconds: float = 0.0
@@ -117,7 +129,18 @@ ENTITY_TYPES = ["Character", "Animal", "Place", "Object", "Activity", "Event",
                 "Concept", "Organization", "Disease", "Treatment", "Symptom"]
 
 
+def sanitize_name(model_name: str) -> str:
+    """Replace '/' with '-' and convert to lowercase. Used for FalkorDB graph naming."""
+    return model_name.replace("/", "-").lower()
+
+
+def make_graph_name(model_name: str, dataset_name: str) -> str:
+    """Generate FalkorDB graph name: sanitize(model) + '_' + dataset."""
+    return sanitize_name(model_name) + "_" + dataset_name
+
+
 def sanitize_model_name(name: str) -> str:
+    """Legacy helper used for filesystem-safe model names."""
     return name.replace("/", "__")
 
 
@@ -311,8 +334,8 @@ class BenchmarkRunner:
             for doc_name, text in dataset.documents.items():
                 if text.strip():
                     grag.insert(text)
-            mr.index_time_seconds = time.time() - t0
-            log.info(f"Indexing done in {mr.index_time_seconds:.1f}s")
+            mr.embedding_time_seconds = time.time() - t0
+            log.info(f"Indexing done in {mr.embedding_time_seconds:.1f}s")
             # Query
             questions = dataset.questions
             if self.config.sample_size and self.config.sample_size < len(questions):
@@ -410,7 +433,7 @@ class BenchmarkRunner:
             if not self.check_model_availability(model):
                 log.warning(f"Model {model.display_name} unavailable, skipping")
                 for ds in datasets:
-                    summary.results.append(ModelResult(model=model, dataset_name=ds.name, error="Model unavailable"))
+                    summary.model_results.append(ModelResult(model=model, dataset_name=ds.name, error="Model unavailable"))
                 continue
 
             for ds in datasets:
@@ -434,7 +457,7 @@ class BenchmarkRunner:
                     except Exception as e:
                         log.error(f"Evaluation failed: {e}")
 
-                summary.results.append(mr)
+                summary.model_results.append(mr)
 
         summary.end_time = datetime.now().isoformat()
         summary.total_time_seconds = time.time() - t_start
@@ -466,7 +489,7 @@ class ReportGenerator:
         lines.append("|------|------|----------|------|")
         for m in summary.config.models:
             status = "✅"
-            for r in summary.results:
+            for r in summary.model_results:
                 if r.model.name == m.name and r.error == "Model unavailable":
                     status = "❌ 不可用"
                     break
@@ -474,9 +497,9 @@ class ReportGenerator:
         lines.append("")
 
         # Per-dataset metrics
-        ds_names = list(set(r.dataset_name for r in summary.results))
+        ds_names = list(set(r.dataset_name for r in summary.model_results))
         for ds in ds_names:
-            ds_results = [r for r in summary.results if r.dataset_name == ds and r.evaluation]
+            ds_results = [r for r in summary.model_results if r.dataset_name == ds and r.evaluation]
             if not ds_results:
                 continue
             lines.append(f"## 3. 指标对比表 - {ds}\n")
@@ -494,11 +517,11 @@ class ReportGenerator:
                     rv = f"**{rv}**"
                 if best_acc is not None and not math.isnan(ev.answer_correctness) and ev.answer_correctness == best_acc:
                     av = f"**{av}**"
-                lines.append(f"| {r.model.display_name} | {rv} | {av} | {r.index_time_seconds:.1f}s | {r.query_time_seconds:.1f}s |")
+                lines.append(f"| {r.model.display_name} | {rv} | {av} | {r.embedding_time_seconds:.1f}s | {r.query_time_seconds:.1f}s |")
             lines.append("")
 
         # BGE-M3 模式对比
-        bge_results = [r for r in summary.results if r.model.name.startswith("BAAI/bge-m3") and r.evaluation]
+        bge_results = [r for r in summary.model_results if r.model.name.startswith("BAAI/bge-m3") and r.evaluation]
         if bge_results:
             lines.append("## 4. BGE-M3 模式对比\n")
             lines.append("| 模式 | 数据集 | ROUGE-L | Answer Correctness |")
@@ -521,7 +544,7 @@ class ReportGenerator:
         # 总体排名
         lines.append("## 5. 总体排名\n")
         model_scores: Dict[str, List[float]] = {}
-        for r in summary.results:
+        for r in summary.model_results:
             if r.evaluation:
                 vals = []
                 if not math.isnan(r.evaluation.rouge_l):
@@ -542,21 +565,21 @@ class ReportGenerator:
         lines.append("## 6. 耗时统计\n")
         lines.append("| 模型 | 数据集 | 索引时间 | 查询时间 | 评估时间 | 总时间 |")
         lines.append("|------|--------|---------|---------|---------|--------|")
-        for r in summary.results:
+        for r in summary.model_results:
             et = r.evaluation.eval_time_seconds if r.evaluation else 0
-            total = r.index_time_seconds + r.query_time_seconds + et
-            lines.append(f"| {r.model.display_name} | {r.dataset_name} | {r.index_time_seconds:.1f}s | {r.query_time_seconds:.1f}s | {et:.1f}s | {total:.1f}s |")
+            total = r.embedding_time_seconds + r.query_time_seconds + et
+            lines.append(f"| {r.model.display_name} | {r.dataset_name} | {r.embedding_time_seconds:.1f}s | {r.query_time_seconds:.1f}s | {et:.1f}s | {total:.1f}s |")
         lines.append("")
         return "\n".join(lines)
 
     @staticmethod
     def generate_summary_json(summary: BenchmarkSummary) -> dict:
         results = []
-        for r in summary.results:
+        for r in summary.model_results:
             entry = {
                 "model": r.model.display_name, "model_name": r.model.name,
                 "dataset": r.dataset_name, "error": r.error,
-                "index_time": r.index_time_seconds, "query_time": r.query_time_seconds,
+                "embedding_time": r.embedding_time_seconds, "query_time": r.query_time_seconds,
                 "num_predictions": len(r.predictions),
             }
             if r.evaluation:
