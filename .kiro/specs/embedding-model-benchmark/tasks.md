@@ -60,15 +60,15 @@
 - [x] 5. 检查点 — 验证基础组件
   - 确保数据模型、FalkorDB VectorStore、并发控制、数据集加载器正确。如有问题请向用户确认。
 
-- [ ] 6. 实现 GraphRAG Pipeline 分割执行器
-  - [-] 6.1 实现 Phase 1-9 共享执行逻辑
+- [x] 6. 实现 GraphRAG Pipeline 分割执行器
+  - [x] 6.1 实现 Phase 1-9 共享执行逻辑
     - 使用 `PipelineFactory.register_pipeline("pre_embedding", [...])` 注册不含 embedding 的 pipeline
     - 为每个数据集生成 `settings.yaml`（配置 completion_models、input_storage、output_storage、cache、table_provider）
     - 使用 `run_pipeline()` 执行 Phase 1-9，产物写入 `tests/benchmark_results/workspace/{dataset}/output/`
     - 记录 Phase 1-9 耗时到 `DatasetPhaseResult`
     - _需求: 2.2, 2.3, 设计: Pipeline 分割_
 
-  - [~] 6.2 实现 Phase 10 按模型执行逻辑
+  - [x] 6.2 实现 Phase 10 按模型执行逻辑
     - 动态修改 `GraphRagConfig.embedding_models` 切换 Embedding 模型
     - 配置 `VectorStoreConfig(type="falkordb", host=..., port=..., graph_name=make_graph_name(model, dataset))`
     - 调用 `generate_text_embeddings.run_workflow()` 执行 Phase 10
@@ -80,8 +80,8 @@
     - **Property 6** — 验证同一数据集的 parquet 产物只生成一次
     - **验证: 设计决策 — Pipeline 分割优化**
 
-- [ ] 7. 实现查询与评估流程
-  - [~] 7.1 实现 GraphRAG Search 查询逻辑
+- [x] 7. 实现查询与评估流程
+  - [x] 7.1 实现 GraphRAG Search 查询逻辑
     - 从 `output_storage` 读取 parquet 表（entities, relationships, text_units, community_reports）
     - 从 FalkorDB 创建 `description_embedding_store`
     - 使用 `create_local_search()` 或 `create_global_search()` 创建 search engine
@@ -89,7 +89,7 @@
     - 模型可用性预检查：测试开始前对每个模型发送测试 embedding 请求
     - _需求: 2.5, 7.1, 7.3, 7.4_
 
-  - [~] 7.2 实现评估指标计算
+  - [x] 7.2 实现评估指标计算
     - 调用 `GraphRAG-Benchmark/Evaluation/metrics/rouge.py` 的 `compute_rouge_score`
     - 调用 `GraphRAG-Benchmark/Evaluation/metrics/answer_accuracy.py` 的 `compute_answer_correctness`
     - 评估用 LLM 使用 `langchain_openai.ChatOpenAI` 连接 `http://10.210.156.69:8633`
@@ -102,11 +102,11 @@
     - **Property 7: 指标计算故障降级** — mock 注入指标异常，验证 NaN 降级
     - **验证: 需求 2.5, 3.6, 5.4, 7.1, 7.2**
 
-- [ ] 8. 检查点 — 验证 Pipeline 执行和查询评估
+- [x] 8. 检查点 — 验证 Pipeline 执行和查询评估
   - 确保 Phase 1-9 共享执行、Phase 10 按模型执行、查询和评估流程正确。如有问题请向用户确认。
 
-- [ ] 9. 实现报告生成器
-  - [~] 9.1 在 `tests/run_embedding_benchmark.py` 中实现 `ReportGenerator`
+- [x] 9. 实现报告生成器
+  - [x] 9.1 在 `tests/run_embedding_benchmark.py` 中实现 `ReportGenerator`
     - `generate_markdown(summary)`：生成 Markdown 报告，含测试环境、模型清单、指标对比表、BGE-M3 模式对比、总体排名（加权平均分降序）、耗时统计（含 Phase 1-9 共享耗时 + Phase 10 各模型耗时）
     - `generate_summary_json(summary)`：生成 JSON 汇总
     - 指标对比表中最优值加粗（`**value**`）
@@ -118,22 +118,22 @@
     - **Property 9: 排名顺序正确性** — 随机结果集，验证降序排列
     - **验证: 需求 6.4, 6.5, 4.3**
 
-- [ ] 10. 实现 Shell 入口脚本与主函数
-  - [~] 10.1 在 `tests/run_embedding_benchmark.py` 中实现 `main()` 入口
+- [x] 10. 实现 Shell 入口脚本与主函数
+  - [x] 10.1 在 `tests/run_embedding_benchmark.py` 中实现 `main()` 入口
     - 解析命令行参数（`--sample`、`--dataset`、`--models`、`--output-dir`、`--data-root`、`--graphrag-root`）
     - 构建 `BenchmarkConfig`，编排完整流程：数据集加载 → Phase 1-9 → Phase 10 × N → 查询 → 评估 → 报告
     - 创建输出目录结构
     - 保存 predictions/evaluations JSON 和 summary.json
     - _需求: 1.3, 1.4, 1.5, 1.8, 9.1, 9.2, 9.3, 9.4_
 
-  - [~] 10.2 创建 `tests/run_embedding_benchmark.sh` Shell 入口脚本
+  - [x] 10.2 创建 `tests/run_embedding_benchmark.sh` Shell 入口脚本
     - 参数解析（`--sample`、`--dataset`、`--models`）传递给 Python
     - 依赖检查（`graphrag`、`falkordb`、`httpx`、`langchain_openai` 等），缺失时 `pip install`
     - API 连通性检查（LLM + Embedding）+ FalkorDB 连通性检查
     - 带时间戳进度日志
     - _需求: 1.1, 1.2, 1.6, 1.7, 1.9, 7.5_
 
-- [ ] 11. 最终检查点 — 端到端验证
+- [x] 11. 最终检查点 — 端到端验证
   - 使用 `--sample 1 --dataset kevin_scott --models "BAAI/bge-m3"` 运行端到端测试
   - 验证 FalkorDB 中图 `bge-m3_kevin_scott` 已创建且包含向量数据
   - 验证 `benchmark_report.md` 和 `summary.json` 正确生成

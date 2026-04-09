@@ -1,90 +1,102 @@
 #!/usr/bin/env bash
-# Embedding 模型基准测试入口脚本
+# ─────────────────────────────────────────────────────────────
+# Embedding 模型基准测试 — Shell 入口脚本
+# 用法: bash tests/run_embedding_benchmark.sh [OPTIONS]
+#   --sample N          每个数据集采样问题数 (默认 5)
+#   --dataset NAME      kevin_scott|msft_multi|msft_single|hotpotqa|all (默认 kevin_scott)
+#   --models "M1,M2"    逗号分隔的模型列表 (默认全部)
+# ─────────────────────────────────────────────────────────────
 set -euo pipefail
 
-BASE_URL="http://10.210.156.69:8633"
-LLM_MODEL="Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
-EMBED_TEST_MODEL="BAAI/bge-m3"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 OUTPUT_DIR="$SCRIPT_DIR/benchmark_results"
+DATA_ROOT="$PROJECT_DIR/graphrag-benchmarking-datasets/data"
 
+# Defaults
 SAMPLE=5
 DATASET="kevin_scott"
 MODELS=""
 
-# Parse args
+# Parse arguments
 while [[ $# -gt 0 ]]; do
-  case $1 in
-    --sample) SAMPLE="$2"; shift 2 ;;
-    --dataset) DATASET="$2"; shift 2 ;;
-    --models) MODELS="$2"; shift 2 ;;
-    *) echo "Unknown arg: $1"; exit 1 ;;
-  esac
+    case "$1" in
+        --sample)  SAMPLE="$2";  shift 2 ;;
+        --dataset) DATASET="$2"; shift 2 ;;
+        --models)  MODELS="$2";  shift 2 ;;
+        *) echo "Unknown option: $1"; exit 1 ;;
+    esac
 done
 
-log()  { echo -e "\033[1;32m[$(date +%H:%M:%S)] $*\033[0m"; }
-err()  { echo -e "\033[1;31m[$(date +%H:%M:%S)] ERROR: $*\033[0m"; }
+ts() { date "+%Y-%m-%d %H:%M:%S"; }
+log() { echo "[$(ts)] $*"; }
 
 mkdir -p "$OUTPUT_DIR"
 
-# Step 1: Dependencies
-log "Step 1/4: 检查 Python 依赖..."
-if python3 -c "import fast_graphrag, httpx, rouge_score, tqdm, langchain_openai" 2>/dev/null; then
-  log "  依赖已安装 ✅"
-else
-  log "  安装缺失依赖..."
-  pip install -q fast-graphrag httpx rouge-score tqdm langchain-openai 2>&1 | tail -3
+# ── Dependency check ──
+log "Checking Python dependencies..."
+DEPS=(graphrag falkordb httpx langchain_openai pandas rouge_score)
+MISSING=()
+for pkg in "${DEPS[@]}"; do
+    python3 -c "import $pkg" 2>/dev/null || MISSING+=("$pkg")
+done
+if [[ ${#MISSING[@]} -gt 0 ]]; then
+    log "Missing packages: ${MISSING[*]}"
+    log "Attempting pip install..."
+    pip install "${MISSING[@]}" || { log "ERROR: pip install failed"; exit 1; }
+fi
+log "All dependencies OK"
+
+# ── API connectivity check ──
+log "Checking API connectivity (LLM)..."
+LLM_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "http://10.210.156.69:8633/chat/completions" \
+    -H "Content-Type: application/json" \
+    -d '{"model":"Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8","messages":[{"role":"user","content":"hi"}],"max_tokens":5}' \
+    --connect-timeout 10 || echo "000")
+if [[ "$LLM_STATUS" != "200" ]]; then
+    log "ERROR: LLM API unreachable (status=$LLM_STATUS)"
+    exit 1
+fi
+log "LLM API OK"
+
+log "Checking API connectivity (Embedding)..."
+EMB_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+    -X POST "http://10.210.156.69:8633/embeddings" \
+    -H "Content-Type: application/json" \
+    -d '{"model":"BAAI/bge-m3","input":"test"}' \
+    --connect-timeout 10 || echo "000")
+if [[ "$EMB_STATUS" != "200" ]]; then
+    log "ERROR: Embedding API unreachable (status=$EMB_STATUS)"
+    exit 1
+fi
+log "Embedding API OK"
+
+# ── FalkorDB connectivity check ──
+log "Checking FalkorDB connectivity..."
+python3 -c "
+from falkordb import FalkorDB
+db = FalkorDB(host='10.210.156.69', port=6379)
+db.list_graphs()
+print('FalkorDB OK')
+" || { log "ERROR: FalkorDB unreachable"; exit 1; }
+
+# ── Run benchmark ──
+log "Starting benchmark: sample=$SAMPLE dataset=$DATASET models=${MODELS:-all}"
+
+ARGS=(
+    --sample "$SAMPLE"
+    --dataset "$DATASET"
+    --output-dir "$OUTPUT_DIR"
+    --data-root "$DATA_ROOT"
+)
+if [[ -n "$MODELS" ]]; then
+    ARGS+=(--models "$MODELS")
 fi
 
-# Step 2: API connectivity
-log "Step 2/4: 检查 API 连通性..."
-LLM_OK=false
-EMBED_OK=false
+python3 "$SCRIPT_DIR/run_embedding_benchmark.py" "${ARGS[@]}" 2>&1 | tee "$OUTPUT_DIR/benchmark_console.log"
 
-if curl -sf --max-time 15 "$BASE_URL/chat/completions" \
-  -X POST -H "Content-Type: application/json" \
-  -d "{\"model\":\"$LLM_MODEL\",\"messages\":[{\"role\":\"user\",\"content\":\"hi\"}],\"max_tokens\":5}" \
-  -o /dev/null; then
-  LLM_OK=true; log "  LLM API ✅"
-else
-  err "  LLM API ❌"
-fi
-
-if curl -sf --max-time 15 "$BASE_URL/embeddings" \
-  -X POST -H "Content-Type: application/json" \
-  -d "{\"model\":\"$EMBED_TEST_MODEL\",\"input\":\"test\"}" \
-  -o /dev/null; then
-  EMBED_OK=true; log "  Embedding API ✅"
-else
-  err "  Embedding API ❌"
-fi
-
-if ! $LLM_OK || ! $EMBED_OK; then
-  err "API 连通性检查失败"; exit 1
-fi
-
-# Step 3: Run benchmark
-log "Step 3/4: 运行基准测试 (sample=$SAMPLE, dataset=$DATASET)..."
-
-CMD="python3 $SCRIPT_DIR/run_embedding_benchmark.py --sample $SAMPLE --dataset $DATASET --output-dir $OUTPUT_DIR"
-if [ -n "$MODELS" ]; then
-  CMD="$CMD --models $MODELS"
-fi
-
-eval "$CMD" 2>&1 | tee "$OUTPUT_DIR/benchmark.log"
-
-# Step 4: Check results
-log "Step 4/4: 验证结果..."
-if [ -f "$OUTPUT_DIR/benchmark_report.md" ]; then
-  log "  报告已生成: $OUTPUT_DIR/benchmark_report.md ✅"
-else
-  err "  报告未生成 ❌"
-fi
-if [ -f "$OUTPUT_DIR/summary.json" ]; then
-  log "  汇总已生成: $OUTPUT_DIR/summary.json ✅"
-else
-  err "  汇总未生成 ❌"
-fi
-
-log "✅ 基准测试完成！"
+log "Benchmark complete. Results in $OUTPUT_DIR/"
+log "  Report:  $OUTPUT_DIR/benchmark_report.md"
+log "  Summary: $OUTPUT_DIR/summary.json"
+log "  Log:     $OUTPUT_DIR/benchmark.log"

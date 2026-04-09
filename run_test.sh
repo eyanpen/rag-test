@@ -47,7 +47,7 @@ fi
 
 if ! $SKIP_INDEX; then
 # ── 1. 安装依赖 ──
-log "Step 1/6: 检查 Python 依赖..."
+log "Step 1/7: 检查 Python 依赖..."
 if python3 -c "import datasets, fast_graphrag, openai, aiohttp, tqdm, transformers, torch" 2>/dev/null; then
   log "  所有依赖已安装，跳过安装步骤 ✅"
 else
@@ -56,7 +56,7 @@ else
 fi
 
 # ── 2. 连通性检查 ──
-log "Step 2/6: 检查 API 连通性..."
+log "Step 2/7: 检查 API 连通性..."
 LLM_OK=false
 EMBED_OK=false
 
@@ -94,10 +94,10 @@ fi # end SKIP_INDEX
 # ── 3. 运行测试 ──
 SKIP_INDEX_FLAG=""
 if $SKIP_INDEX; then
-  log "Step 3/6: 跳过 index，直接跑 query (subset=$SUBSET, sample=$SAMPLE)..."
+  log "Step 3/7: 跳过 index，直接跑 query (subset=$SUBSET, sample=$SAMPLE)..."
   SKIP_INDEX_FLAG="--skip-index"
 else
-  log "Step 3/6: 运行 fast-graphrag 完整测试 (subset=$SUBSET, sample=$SAMPLE)..."
+  log "Step 3/7: 运行 fast-graphrag 完整测试 (subset=$SUBSET, sample=$SAMPLE)..."
 fi
 
 T_START=$(ts)
@@ -118,7 +118,7 @@ T_END=$(ts)
 DURATION=$((T_END - T_START))
 
 # ── 4. 检查结果 ──
-log "Step 4/6: 验证输出..."
+log "Step 4/7: 验证输出..."
 if [ ! -f "$RESULTS_DIR/predictions.json" ]; then
   err "predictions.json 未生成"
   exit 1
@@ -130,8 +130,15 @@ SUCCESS=$((TOTAL - ERRORS))
 
 log "  总计: $TOTAL, 成功: $SUCCESS, 失败: $ERRORS"
 
-# ── 5. 简单质量抽检 ──
-log "Step 5/6: 质量抽检..."
+# ── 5. LLM-as-Judge 评分 ──
+log "Step 5/7: LLM-as-Judge 评分..."
+python3 "$SCRIPT_DIR/llm_judge.py" \
+  --input "$RESULTS_DIR/predictions.json" \
+  --base_url "$BASE_URL" \
+  --model "$LLM_MODEL"
+
+# ── 6. 简单质量抽检 ──
+log "Step 6/7: 质量抽检..."
 python3 -c "
 import json
 data = json.load(open('$RESULTS_DIR/predictions.json'))
@@ -141,14 +148,16 @@ for item in data[:3]:
     q = item.get('question','')[:80]
     a = item.get('generated_answer','')[:120]
     ctx_n = len(item.get('context', []))
+    score = item.get('judge_score', 'N/A')
+    reason = item.get('judge_reason', '')[:100]
     print(f'  Q: {q}')
     print(f'  A: {a}')
-    print(f'  Context chunks: {ctx_n}')
+    print(f'  Context chunks: {ctx_n}  Judge: {score}/10 - {reason}')
     print()
 "
 
-# ── 6. 生成报告 ──
-log "Step 6/6: 生成测试报告..."
+# ── 7. 生成报告 ──
+log "Step 7/7: 生成测试报告..."
 
 cat > "$REPORT" << REPORT_EOF
 # fast-graphrag 测试报告
@@ -192,7 +201,30 @@ cat > "$REPORT" << REPORT_EOF
 | 总耗时 | ${DURATION}s |
 | 平均每题 | $(python3 -c "print(f'{$DURATION/$TOTAL:.1f}s' if $TOTAL>0 else 'N/A')") |
 
-## 5. 结果样例
+## 5. LLM-as-Judge 评分
+
+$(python3 -c "
+import json
+data = json.load(open('$RESULTS_DIR/predictions.json'))
+scored = [d for d in data if d.get('judge_score', -1) >= 0]
+if scored:
+    avg = sum(d['judge_score'] for d in scored) / len(scored)
+    print(f'| 指标 | 值 |')
+    print(f'|------|-----|')
+    print(f'| 评分数量 | {len(scored)} |')
+    print(f'| 平均分 | {avg:.1f}/10 |')
+    print(f'| 最高分 | {max(d[\"judge_score\"] for d in scored)}/10 |')
+    print(f'| 最低分 | {min(d[\"judge_score\"] for d in scored)}/10 |')
+    print()
+    print('| ID | 分数 | 理由 |')
+    print('|-----|------|------|')
+    for d in scored:
+        print(f'| {d[\"id\"]} | {d[\"judge_score\"]}/10 | {d.get(\"judge_reason\",\"\")[:80]} |')
+else:
+    print('无评分数据')
+")
+
+## 6. 结果样例
 
 \`\`\`json
 $(python3 -c "
@@ -210,7 +242,7 @@ print(json.dumps(sample, indent=2, ensure_ascii=False))
 ")
 \`\`\`
 
-## 6. 问题类型分布
+## 7. 问题类型分布
 
 $(python3 -c "
 import json
@@ -223,7 +255,7 @@ for t, c in types.most_common():
     print(f'| {t} | {c} |')
 ")
 
-## 7. 运行日志（末尾）
+## 8. 运行日志（末尾）
 
 \`\`\`
 $(tail -20 "$RESULTS_DIR/run.log")
