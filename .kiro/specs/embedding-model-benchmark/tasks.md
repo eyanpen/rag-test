@@ -6,7 +6,7 @@
 
 ## Tasks
 
-- [ ] 1. 搭建项目结构与核心数据模型
+- [x] 1. 搭建项目结构与核心数据模型
   - [x] 1.1 创建 `tests/run_embedding_benchmark.py`，定义数据模型和常量
     - 定义 `EmbeddingModelConfig`、`BenchmarkConfig`、`DatasetPhaseResult`、`PredictionItem`、`EvaluationResult`、`ModelResult`、`BenchmarkSummary` 数据类
     - `BenchmarkConfig` 包含 `falkordb_host`/`falkordb_port`、`graphrag_root` 字段
@@ -21,8 +21,8 @@
     - 测试文件：`tests/test_embedding_benchmark.py`
     - **验证: 需求 2.4, 9.1**
 
-- [ ] 2. 实现 FalkorDB 自定义 VectorStore
-  - [~] 2.1 创建 `tests/falkordb_vector_store.py`，实现 `FalkorDBVectorStore` 类
+- [x] 2. 实现 FalkorDB 自定义 VectorStore
+  - [x] 2.1 创建 `tests/falkordb_vector_store.py`，实现 `FalkorDBVectorStore` 类
     - 继承 `graphrag_vectors.VectorStore` 抽象基类
     - 实现 `connect()`：连接 FalkorDB（host=10.210.156.69, port=6379, 无密码），选择图 `self.graph_name`
     - 实现 `load_documents(documents, overwrite)`：将向量数据写入 FalkorDB 图节点
@@ -31,8 +31,8 @@
     - 调用 `register_vector_store("falkordb", FalkorDBVectorStore)` 注册到 GraphRAG 工厂
     - _需求: 2.2, 设计: FalkorDB 集成_
 
-- [ ] 3. 实现自适应并发控制器
-  - [~] 3.1 在 `tests/run_embedding_benchmark.py` 中实现 `AdaptiveConcurrencyController`
+- [x] 3. 实现自适应并发控制器
+  - [x] 3.1 在 `tests/run_embedding_benchmark.py` 中实现 `AdaptiveConcurrencyController`
     - `__init__(init=10, min_val=2, max_val=50)`
     - `adjust(is_error)`：5xx → 并发 -1，连续 5 成功 → +1
     - `install_hooks()`：Monkey-patch `httpx.AsyncClient.send` 注入节流和计时
@@ -44,8 +44,8 @@
     - **Property 10** — 随机 (init, min, max) + 随机 success/error 序列，验证不变量
     - **验证: 需求 8.1, 8.2, 8.3**
 
-- [ ] 4. 实现数据集加载器
-  - [~] 4.1 在 `tests/run_embedding_benchmark.py` 中实现 `DatasetLoader`
+- [x] 4. 实现数据集加载器
+  - [x] 4.1 在 `tests/run_embedding_benchmark.py` 中实现 `DatasetLoader`
     - `prepare_kevin_scott(data_root, output_dir)`：合并 Episode part 文件（按 part 编号升序），写入 GraphRAG input 目录，加载 `Kevin Scott Questions.csv`
     - `prepare_msft(data_root, question_type, output_dir)`：准备 MSFT txt 文件，加载对应 CSV
     - `prepare_hotpotqa(data_root, output_dir)`：准备 HotPotQA `test_*.txt` 文件，加载 CSV
@@ -57,11 +57,11 @@
     - **Property 4: CSV 问题加载完整性** — 随机 CSV，验证行数一致
     - **验证: 需求 3.1, 3.2**
 
-- [ ] 5. 检查点 — 验证基础组件
+- [x] 5. 检查点 — 验证基础组件
   - 确保数据模型、FalkorDB VectorStore、并发控制、数据集加载器正确。如有问题请向用户确认。
 
 - [ ] 6. 实现 GraphRAG Pipeline 分割执行器
-  - [~] 6.1 实现 Phase 1-9 共享执行逻辑
+  - [-] 6.1 实现 Phase 1-9 共享执行逻辑
     - 使用 `PipelineFactory.register_pipeline("pre_embedding", [...])` 注册不含 embedding 的 pipeline
     - 为每个数据集生成 `settings.yaml`（配置 completion_models、input_storage、output_storage、cache、table_provider）
     - 使用 `run_pipeline()` 执行 Phase 1-9，产物写入 `tests/benchmark_results/workspace/{dataset}/output/`

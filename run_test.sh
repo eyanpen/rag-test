@@ -6,9 +6,11 @@
 set -euo pipefail
 
 STOP_AFTER=""
+FULL_RUN=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --stop-after) STOP_AFTER="$2"; shift 2 ;;
+    --full) FULL_RUN=true; shift ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
 done
@@ -32,6 +34,18 @@ log()  { echo -e "\033[1;32m[$(date +%H:%M:%S)] $*\033[0m"; }
 err()  { echo -e "\033[1;31m[$(date +%H:%M:%S)] ERROR: $*\033[0m"; }
 ts()   { date +%s; }
 
+# ── 判断是否可以跳过 index 及之前步骤 ──
+SKIP_INDEX=false
+LLM_OK=false
+EMBED_OK=false
+if ! $FULL_RUN && ls "$WORKSPACE"/*/graph_igraph_data.pklz &>/dev/null; then
+  SKIP_INDEX=true
+  LLM_OK=true
+  EMBED_OK=true
+  log "检测到已有 index，跳过 Step 1-2 及 index，直接跑 query (使用 --full 强制全流程)"
+fi
+
+if ! $SKIP_INDEX; then
 # ── 1. 安装依赖 ──
 log "Step 1/6: 检查 Python 依赖..."
 if python3 -c "import datasets, fast_graphrag, openai, aiohttp, tqdm, transformers, torch" 2>/dev/null; then
@@ -75,9 +89,16 @@ if [[ "$STOP_AFTER" == "2" ]]; then
   log "--stop-after 2: 连通性检查完成，退出"
   exit 0
 fi
+fi # end SKIP_INDEX
 
 # ── 3. 运行测试 ──
-log "Step 3/6: 运行 fast-graphrag 推理测试 (subset=$SUBSET, sample=$SAMPLE)..."
+SKIP_INDEX_FLAG=""
+if $SKIP_INDEX; then
+  log "Step 3/6: 跳过 index，直接跑 query (subset=$SUBSET, sample=$SAMPLE)..."
+  SKIP_INDEX_FLAG="--skip-index"
+else
+  log "Step 3/6: 运行 fast-graphrag 完整测试 (subset=$SUBSET, sample=$SAMPLE)..."
+fi
 
 T_START=$(ts)
 
@@ -90,6 +111,7 @@ python3 "$SCRIPT_DIR/run_fast_graphrag_test.py" \
   --embed_dim "$EMBED_DIM" \
   --workspace "$WORKSPACE" \
   --output "$RESULTS_DIR/predictions.json" \
+  $SKIP_INDEX_FLAG \
   2>&1 | tee "$RESULTS_DIR/run.log"
 
 T_END=$(ts)

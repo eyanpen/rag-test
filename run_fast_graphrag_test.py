@@ -196,9 +196,12 @@ def process_corpus(
     )
 
     # Index
-    log.info(f"Indexing corpus: {corpus_name} ({len(context.split())} words)")
-    grag.insert(context)
-    log.info(f"Indexing done: {corpus_name}")
+    if args.skip_index:
+        log.info(f"Skipping index for corpus: {corpus_name} (--skip-index)")
+    else:
+        log.info(f"Indexing corpus: {corpus_name} ({len(context.split())} words)")
+        grag.insert(context)
+        log.info(f"Indexing done: {corpus_name}")
 
     # Query
     corpus_questions = questions.get(corpus_name, [])
@@ -240,6 +243,7 @@ def main():
     parser.add_argument("--embed_dim", type=int, default=4096)
     parser.add_argument("--workspace", default="./test_workspace")
     parser.add_argument("--output", default="./predictions.json")
+    parser.add_argument("--skip-index", action="store_true", help="Skip indexing, only run queries")
     args = parser.parse_args()
 
     benchmark = os.path.join(os.path.dirname(os.path.abspath(__file__)), "GraphRAG-Benchmark")
