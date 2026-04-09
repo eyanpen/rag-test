@@ -1,0 +1,6 @@
+[submodule "GraphRAG-Benchmark"]
+	path = GraphRAG-Benchmark
+	url = git@github.com:eyanpen/GraphRAG-Benchmark.git
+[submodule "graphrag-benchmarking-datasets"]
+	path = graphrag-benchmarking-datasets
+	url = git@github.com:eyanpen/graphrag-benchmarking-datasets.git
