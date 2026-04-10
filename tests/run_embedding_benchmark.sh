@@ -3,7 +3,7 @@
 # Embedding 模型基准测试 — Shell 入口脚本
 # 用法: bash tests/run_embedding_benchmark.sh [OPTIONS]
 #   --sample N          每个数据集采样问题数 (默认 5)
-#   --dataset NAME      kevin_scott|msft_multi|msft_single|hotpotqa|all (默认 kevin_scott)
+#   --dataset NAME      medical|novel|all (默认 medical)
 #   --models "M1,M2"    逗号分隔的模型列表 (默认全部)
 # ─────────────────────────────────────────────────────────────
 set -euo pipefail
@@ -11,11 +11,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 OUTPUT_DIR="$SCRIPT_DIR/benchmark_results"
-DATA_ROOT="$PROJECT_DIR/graphrag-benchmarking-datasets/data"
+DATA_ROOT="$PROJECT_DIR/GraphRAG-Benchmark/Datasets"
 
 # Defaults
 SAMPLE=5
-DATASET="kevin_scott"
+DATASET="medical"
 MODELS=""
 
 # Parse arguments

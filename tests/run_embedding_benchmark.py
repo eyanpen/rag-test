@@ -8,13 +8,10 @@
 """
 import asyncio
 import argparse
-import csv
-import glob
 import json
 import logging
 import math
 import os
-import re
 import shutil
 import sys
 import threading
@@ -54,10 +51,10 @@ class BenchmarkConfig:
     falkordb_host: str = "10.210.156.69"
     falkordb_port: int = 6379
     sample_size: int = 5
-    datasets: List[str] = field(default_factory=lambda: ["kevin_scott"])
+    datasets: List[str] = field(default_factory=lambda: ["medical"])
     models: List["EmbeddingModelConfig"] = field(default_factory=lambda: EMBEDDING_MODELS)
     output_dir: str = "tests/benchmark_results"
-    data_root: str = "graphrag-benchmarking-datasets/data"
+    data_root: str = "GraphRAG-Benchmark/Datasets"
     graphrag_root: str = "/home/eyanpen/sourceCode/rnd-ai-engine-features/graphrag"
 
 
@@ -257,91 +254,89 @@ class AdaptiveConcurrencyController:
 
 class DatasetLoader:
     @staticmethod
-    def _load_csv(path: str, q_col: str, id_col: str) -> Optional[List[Dict[str, str]]]:
-        """Load questions from a CSV file. Returns None on error."""
+    def prepare_medical(datasets_root: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
+        """Load medical corpus and questions from GraphRAG-Benchmark/Datasets/.
+
+        Writes corpus text as a single .txt file into output_dir.
+        Returns questions list (with ground_truth) or None on error.
+        """
         try:
+            corpus_path = os.path.join(datasets_root, "Corpus", "medical.json")
+            if not os.path.isfile(corpus_path):
+                log.warning(f"Medical corpus not found: {corpus_path}")
+                return None
+            os.makedirs(output_dir, exist_ok=True)
+            with open(corpus_path, encoding="utf-8") as f:
+                corpus = json.load(f)
+            # medical.json is a single dict with "corpus_name" and "context"
+            context = corpus.get("context", "")
+            with open(os.path.join(output_dir, "medical.txt"), "w", encoding="utf-8") as fout:
+                fout.write(context)
+
+            questions_path = os.path.join(datasets_root, "Questions", "medical_questions.json")
+            if not os.path.isfile(questions_path):
+                log.warning(f"Medical questions not found: {questions_path}")
+                return None
+            with open(questions_path, encoding="utf-8") as f:
+                raw_questions = json.load(f)
             questions = []
-            with open(path, encoding="utf-8-sig") as f:
-                reader = csv.DictReader(f)
-                if q_col not in (reader.fieldnames or []) or id_col not in (reader.fieldnames or []):
-                    log.warning(f"CSV {path} missing columns: need '{q_col}' and '{id_col}', got {reader.fieldnames}")
-                    return None
-                for row in reader:
-                    questions.append({"question_id": row.get(id_col, ""), "question_text": row.get(q_col, "")})
+            for q in raw_questions:
+                questions.append({
+                    "question_id": q.get("id", ""),
+                    "question_text": q.get("question", ""),
+                    "ground_truth": q.get("answer", ""),
+                    "evidence": q.get("evidence", ""),
+                    "question_type": q.get("question_type", ""),
+                    "source": q.get("source", "Medical"),
+                })
+            log.info(f"Medical: {len(questions)} questions loaded with ground_truth")
             return questions
-        except FileNotFoundError:
-            log.warning(f"CSV file not found: {path}")
-            return None
         except Exception as e:
-            log.warning(f"Failed to load CSV {path}: {e}")
+            log.warning(f"Failed to prepare medical: {e}")
             return None
 
     @staticmethod
-    def prepare_kevin_scott(data_root: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
-        """Merge Episode part files and write to output_dir. Return questions or None."""
-        try:
-            input_dir = os.path.join(data_root, "kevinScott", "input")
-            if not os.path.isdir(input_dir):
-                log.warning(f"Kevin Scott input dir not found: {input_dir}")
-                return None
-            os.makedirs(output_dir, exist_ok=True)
-            files = glob.glob(os.path.join(input_dir, "*.txt"))
-            if not files:
-                log.warning(f"No txt files found in {input_dir}")
-                return None
-            episodes: Dict[str, Dict[int, str]] = {}
-            for f in files:
-                fname = os.path.basename(f)
-                m = re.match(r"(.+)-part(\d+)\.txt$", fname)
-                if m:
-                    ep_name, part_num = m.group(1), int(m.group(2))
-                else:
-                    ep_name, part_num = fname.replace(".txt", ""), 0
-                with open(f, encoding="utf-8") as fh:
-                    episodes.setdefault(ep_name, {})[part_num] = fh.read()
-            for ep_name, parts in episodes.items():
-                merged = "\n".join(parts[k] for k in sorted(parts))
-                with open(os.path.join(output_dir, f"{ep_name}.txt"), "w", encoding="utf-8") as fout:
-                    fout.write(merged)
-            csv_path = os.path.join(data_root, "kevinScott", "Kevin Scott Questions.csv")
-            return DatasetLoader._load_csv(csv_path, "question_text", "question_id")
-        except Exception as e:
-            log.warning(f"Failed to prepare kevin_scott: {e}")
-            return None
+    def prepare_novel(datasets_root: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
+        """Load novel corpus and questions from GraphRAG-Benchmark/Datasets/.
 
-    @staticmethod
-    def prepare_msft(data_root: str, question_type: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
-        """Copy MSFT txt files to output_dir. Return questions or None."""
+        Writes each novel as a separate .txt file into output_dir.
+        Returns questions list (with ground_truth) or None on error.
+        """
         try:
-            txt_dir = os.path.join(data_root, "MSFT", "txt")
-            if not os.path.isdir(txt_dir):
-                log.warning(f"MSFT txt dir not found: {txt_dir}")
+            corpus_path = os.path.join(datasets_root, "Corpus", "novel.json")
+            if not os.path.isfile(corpus_path):
+                log.warning(f"Novel corpus not found: {corpus_path}")
                 return None
             os.makedirs(output_dir, exist_ok=True)
-            for f in glob.glob(os.path.join(txt_dir, "*.txt")):
-                shutil.copy2(f, output_dir)
-            csv_name = f"MSFT {'Multi' if question_type == 'multi' else 'Single'} Transcript Questions.csv"
-            csv_path = os.path.join(data_root, "MSFT", csv_name)
-            return DatasetLoader._load_csv(csv_path, "question_text", "question_id")
-        except Exception as e:
-            log.warning(f"Failed to prepare msft_{question_type}: {e}")
-            return None
+            with open(corpus_path, encoding="utf-8") as f:
+                corpus_list = json.load(f)
+            # novel.json is a list of dicts, each with "corpus_name" and "context"
+            for item in corpus_list:
+                name = item.get("corpus_name", "unknown")
+                context = item.get("context", "")
+                with open(os.path.join(output_dir, f"{name}.txt"), "w", encoding="utf-8") as fout:
+                    fout.write(context)
 
-    @staticmethod
-    def prepare_hotpotqa(data_root: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
-        """Copy HotPotQA test_*.txt files to output_dir. Return questions or None."""
-        try:
-            input_dir = os.path.join(data_root, "HotPotQA", "input")
-            if not os.path.isdir(input_dir):
-                log.warning(f"HotPotQA input dir not found: {input_dir}")
+            questions_path = os.path.join(datasets_root, "Questions", "novel_questions.json")
+            if not os.path.isfile(questions_path):
+                log.warning(f"Novel questions not found: {questions_path}")
                 return None
-            os.makedirs(output_dir, exist_ok=True)
-            for f in glob.glob(os.path.join(input_dir, "test_*.txt")):
-                shutil.copy2(f, output_dir)
-            csv_path = os.path.join(data_root, "HotPotQA", "HotPotQA Filtered Questions.csv")
-            return DatasetLoader._load_csv(csv_path, "question_text", "question_id")
+            with open(questions_path, encoding="utf-8") as f:
+                raw_questions = json.load(f)
+            questions = []
+            for q in raw_questions:
+                questions.append({
+                    "question_id": q.get("id", ""),
+                    "question_text": q.get("question", ""),
+                    "ground_truth": q.get("answer", ""),
+                    "evidence": q.get("evidence", ""),
+                    "question_type": q.get("question_type", ""),
+                    "source": q.get("source", ""),
+                })
+            log.info(f"Novel: {len(questions)} questions loaded with ground_truth")
+            return questions
         except Exception as e:
-            log.warning(f"Failed to prepare hotpotqa: {e}")
+            log.warning(f"Failed to prepare novel: {e}")
             return None
 
 
@@ -619,6 +614,7 @@ async def run_queries(
     for q in questions:
         qid = q["question_id"]
         qtext = q["question_text"]
+        ground_truth = q.get("ground_truth", "")
         try:
             result = await search_engine.search(qtext)
             context_texts = []
@@ -632,13 +628,13 @@ async def run_queries(
                 id=qid, question=qtext, source=dataset_name,
                 context=context_texts,
                 generated_answer=result.response,
-                ground_truth="",
+                ground_truth=ground_truth,
             ))
         except Exception as e:
             log.error(f"Query failed for {qid}: {e}")
             predictions.append(PredictionItem(
                 id=qid, question=qtext, source=dataset_name,
-                context=[], generated_answer="", ground_truth="",
+                context=[], generated_answer="", ground_truth=ground_truth,
                 error=str(e),
             ))
     return predictions
@@ -667,7 +663,7 @@ async def evaluate_predictions(
 
         # ROUGE-L
         try:
-            score = await compute_rouge_score(p.generated_answer, p.ground_truth if p.ground_truth else p.question)
+            score = await compute_rouge_score(p.generated_answer, p.ground_truth)
             rouge_scores.append(score)
         except Exception as e:
             log.debug(f"ROUGE failed for {p.id}: {e}")
@@ -688,8 +684,7 @@ async def evaluate_predictions(
                     base_url=config.api_base_url,
                     api_key="no-key",
                 )
-            gt = p.ground_truth if p.ground_truth else p.question
-            score = await compute_answer_correctness(p.question, p.generated_answer, gt, eval_llm, eval_emb)
+            score = await compute_answer_correctness(p.question, p.generated_answer, p.ground_truth, eval_llm, eval_emb)
             acc_scores.append(score)
         except Exception as e:
             log.debug(f"Answer correctness failed for {p.id}: {e}")
@@ -903,14 +898,10 @@ async def async_main(config: BenchmarkConfig):
 
         # Load dataset
         questions = None
-        if ds_name == "kevin_scott":
-            questions = DatasetLoader.prepare_kevin_scott(data_root, input_dir)
-        elif ds_name == "msft_multi":
-            questions = DatasetLoader.prepare_msft(data_root, "multi", input_dir)
-        elif ds_name == "msft_single":
-            questions = DatasetLoader.prepare_msft(data_root, "single", input_dir)
-        elif ds_name == "hotpotqa":
-            questions = DatasetLoader.prepare_hotpotqa(data_root, input_dir)
+        if ds_name == "medical":
+            questions = DatasetLoader.prepare_medical(data_root, input_dir)
+        elif ds_name == "novel":
+            questions = DatasetLoader.prepare_novel(data_root, input_dir)
 
         if questions is None:
             log.warning(f"Dataset {ds_name} failed to load, skipping")
@@ -1023,11 +1014,11 @@ async def async_main(config: BenchmarkConfig):
 def main():
     parser = argparse.ArgumentParser(description="Embedding 模型基准测试")
     parser.add_argument("--sample", type=int, default=5)
-    parser.add_argument("--dataset", default="kevin_scott",
-                        choices=["kevin_scott", "msft_multi", "msft_single", "hotpotqa", "all"])
+    parser.add_argument("--dataset", default="medical",
+                        choices=["medical", "novel", "all"])
     parser.add_argument("--models", default="", help="Comma-separated model names, default=all")
     parser.add_argument("--output-dir", default=os.path.join(SCRIPT_DIR, "benchmark_results"))
-    parser.add_argument("--data-root", default=os.path.join(PROJECT_DIR, "graphrag-benchmarking-datasets", "data"))
+    parser.add_argument("--data-root", default=os.path.join(PROJECT_DIR, "GraphRAG-Benchmark", "Datasets"))
     parser.add_argument("--graphrag-root", default="/home/eyanpen/sourceCode/rnd-ai-engine-features/graphrag")
     args = parser.parse_args()
 
@@ -1051,7 +1042,7 @@ def main():
     else:
         models = list(EMBEDDING_MODELS)
 
-    datasets = ["kevin_scott", "msft_multi", "msft_single", "hotpotqa"] if args.dataset == "all" else [args.dataset]
+    datasets = ["medical", "novel"] if args.dataset == "all" else [args.dataset]
 
     config = BenchmarkConfig(
         sample_size=args.sample,

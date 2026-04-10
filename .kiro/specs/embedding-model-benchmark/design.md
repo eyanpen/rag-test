@@ -337,20 +337,30 @@ class AdaptiveConcurrencyController:
 
 ```python
 class DatasetLoader:
-    """数据集加载器 — 将 txt/csv 文件转换为 GraphRAG input 格式"""
+    """数据集加载器 — 从 GraphRAG-Benchmark/Datasets/ 加载语料和带 ground_truth 的问题"""
     @staticmethod
-    def prepare_kevin_scott(data_root: str, output_dir: str) -> str:
-        """合并 Episode part 文件，写入 GraphRAG input 目录"""
+    def prepare_medical(datasets_root: str, output_dir: str) -> Optional[Tuple[List[Dict], str]]:
+        """加载 medical.json 语料写入 output_dir，返回 (questions, corpus_name) 或 None"""
         ...
     @staticmethod
-    def prepare_msft(data_root: str, question_type: str, output_dir: str) -> str:
-        """准备 MSFT 数据集"""
-        ...
-    @staticmethod
-    def prepare_hotpotqa(data_root: str, output_dir: str) -> str:
-        """准备 HotPotQA 数据集"""
+    def prepare_novel(datasets_root: str, output_dir: str) -> Optional[Tuple[List[Dict], str]]:
+        """加载 novel.json 语料（20 篇小说各写一个 txt），返回 (questions, corpus_name) 或 None"""
         ...
 ```
+
+问题 JSON 格式（medical_questions.json / novel_questions.json）：
+```json
+{
+    "id": "Medical-73586ddc",
+    "source": "Medical",
+    "question": "What is the most common type of skin cancer?",
+    "answer": "Basal cell carcinoma (BCC) is the most common type of skin cancer.",
+    "question_type": "Fact Retrieval",
+    "evidence": "Basal cell carcinoma (BCC) is the most common type of skin cancer."
+}
+```
+
+`answer` 字段作为 ground_truth 传递给评估流程，确保 ROUGE-L 和 Answer Correctness 的评估有意义。
 
 ### 9. ReportGenerator
 
@@ -399,7 +409,7 @@ class BenchmarkConfig:
     datasets: List[str] = field(default_factory=lambda: ["kevin_scott"])
     models: List[EmbeddingModelConfig] = field(default_factory=lambda: EMBEDDING_MODELS)
     output_dir: str = "tests/benchmark_results"
-    data_root: str = "graphrag-benchmarking-datasets/data"
+    data_root: str = "GraphRAG-Benchmark/Datasets"
     graphrag_root: str = "/home/eyanpen/sourceCode/rnd-ai-engine-features/graphrag"
 ```
 

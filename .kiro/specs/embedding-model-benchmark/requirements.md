@@ -2,7 +2,7 @@
 
 ## 简介
 
-创建一键测试脚本，放置于 `tests/` 目录下，用于系统性比较不同 Embedding 模型在 GraphRAG 场景中的效果。脚本使用 `graphrag-benchmarking-datasets/data` 下的数据集，通过 fast-graphrag 框架进行索引构建和查询，利用 GraphRAG-Benchmark 评估框架计算多维度指标，并生成结构化 Markdown 对比报告。对于支持多模式的模型（如 BAAI/bge-m3 的默认/heavy/interactive 模式），还需比较不同模式间的效果差异。
+创建一键测试脚本，放置于 `tests/` 目录下，用于系统性比较不同 Embedding 模型在 GraphRAG 场景中的效果。脚本使用 `GraphRAG-Benchmark/Datasets/` 下的 medical 和 novel 数据集（含完整 ground_truth 标准答案），通过 Microsoft GraphRAG pipeline 进行索引构建和查询，利用 GraphRAG-Benchmark 评估框架计算多维度指标，并生成结构化 Markdown 对比报告。对于支持多模式的模型（如 BAAI/bge-m3 的默认/heavy/interactive 模式），还需比较不同模式间的效果差异。
 
 ## 术语表
 
@@ -10,11 +10,11 @@
 - **Test_Runner**: Python 测试执行器，负责遍历 Embedding 模型、构建索引、执行查询、收集结果
 - **Embedding_Model**: 通过 OpenAI 兼容 API 提供的向量化模型，将文本转换为稠密向量表示
 - **Bi_Encoder_Mode**: 双塔模式，BAAI/bge-m3 模型的一种变体，query 和 document 分别编码；包括默认模式、heavy 模式和 interactive 模式
-- **GraphRAG_Index**: fast-graphrag 框架构建的知识图谱索引，用于后续查询
+- **GraphRAG_Index**: Microsoft GraphRAG 框架构建的知识图谱索引，用于后续查询
 - **Evaluation_Pipeline**: GraphRAG-Benchmark 提供的评估流水线，包含 ROUGE-L、Answer Correctness、Coverage Score、Faithfulness、Context Relevancy、Evidence Recall 等指标
 - **Benchmark_Report**: 最终生成的 Markdown 格式对比报告，包含所有模型在所有数据集上的评估指标对比
 - **API_Server**: 位于 `http://10.210.156.69:8633` 的 OpenAI 兼容 API 服务器，提供 LLM 和 Embedding 服务
-- **Dataset_Loader**: 数据集加载模块，负责从 `graphrag-benchmarking-datasets/data` 加载文本和问题
+- **Dataset_Loader**: 数据集加载模块，负责从 `GraphRAG-Benchmark/Datasets/` 加载语料文本和带标准答案的问题
 
 ## 可用 Embedding 模型清单
 
@@ -39,14 +39,14 @@ Reranker 模型（可选用于检索增强）：
 
 ## 可用数据集
 
-数据集根目录：`graphrag-benchmarking-datasets/data/`
+数据集根目录：`GraphRAG-Benchmark/Datasets/`
 
-| 数据集 | 文本路径 | 问题文件 | 问题数量 | 状态 |
-|--------|---------|---------|---------|------|
-| Kevin Scott Podcasts | `data/kevinScott/input/*.txt` | `data/kevinScott/Kevin Scott Questions.csv` | 125 | 可用 |
-| MSFT Multi Transcript | `data/MSFT/txt/*.txt` | `data/MSFT/MSFT Multi Transcript Questions.csv` | 20 | 可用 |
-| MSFT Single Transcript | `data/MSFT/txt/*.txt` | `data/MSFT/MSFT Single Transcript Questions.csv` | 21 | 可用 |
-| HotPotQA | `data/HotPotQA/input/test_*.txt` | `data/HotPotQA/HotPotQA Filtered Questions.csv` | 5491 | 可用 |
+| 数据集 | 语料文件 | 问题文件 | 问题数量 | 含 ground_truth | 状态 |
+|--------|---------|---------|---------|----------------|------|
+| Medical | `Corpus/medical.json` (单文档, 1MB) | `Questions/medical_questions.json` | 2062 | ✅ answer + evidence | 可用 |
+| Novel | `Corpus/novel.json` (20 篇小说) | `Questions/novel_questions.json` | 2010 | ✅ answer + evidence | 可用 |
+
+问题 JSON 字段：`id`, `source`, `question`, `answer`, `question_type`, `evidence`, `evidence_relations`/`evidence_triple`
 
 ## 需求
 
@@ -59,7 +59,7 @@ Reranker 模型（可选用于检索增强）：
 1. THE Benchmark_Script SHALL 位于 `tests/` 目录下，文件名为 `run_embedding_benchmark.sh`
 2. WHEN 用户执行 `bash tests/run_embedding_benchmark.sh` 时，THE Benchmark_Script SHALL 自动完成依赖检查、API 连通性验证、测试执行和报告生成的完整流程
 3. THE Benchmark_Script SHALL 支持通过命令行参数指定采样数量（`--sample`），默认值为 5，用于快速验证
-4. THE Benchmark_Script SHALL 支持通过命令行参数指定要测试的数据集（`--dataset`），可选值为 `kevin_scott`、`msft_multi`、`msft_single`、`hotpotqa`、`all`，默认值为 `kevin_scott`
+4. THE Benchmark_Script SHALL 支持通过命令行参数指定要测试的数据集（`--dataset`），可选值为 `medical`、`novel`、`all`，默认值为 `medical`
 5. THE Benchmark_Script SHALL 支持通过命令行参数指定要测试的 Embedding 模型列表（`--models`），默认测试所有可用 Embedding 模型
 6. IF 依赖检查失败，THEN THE Benchmark_Script SHALL 输出缺失依赖列表并尝试自动安装
 7. IF API 连通性检查失败，THEN THE Benchmark_Script SHALL 输出错误信息并终止执行，返回非零退出码
@@ -81,15 +81,15 @@ Reranker 模型（可选用于检索增强）：
 
 ### 需求 3：数据集加载与问题查询
 
-**用户故事：** 作为开发者，我希望测试脚本能正确加载 `graphrag-benchmarking-datasets/data` 下的数据集和对应问题文件，以便使用标准化数据进行评测。
+**用户故事：** 作为开发者，我希望测试脚本能正确加载 `GraphRAG-Benchmark/Datasets/` 下的 medical 和 novel 数据集（含语料和带标准答案的问题），以便使用标准化数据进行评测。
 
 #### 验收标准
 
-1. THE Dataset_Loader SHALL 从 `graphrag-benchmarking-datasets/data/kevinScott/input/` 目录加载 Kevin Scott Podcast 文本文件，将同一 Episode 的多个 part 文件合并为完整文本
-2. THE Dataset_Loader SHALL 从 `graphrag-benchmarking-datasets/data/kevinScott/Kevin Scott Questions.csv` 加载问题列表
-3. THE Dataset_Loader SHALL 从 `graphrag-benchmarking-datasets/data/MSFT/txt/` 目录加载 MSFT Transcript 文本文件
-4. THE Dataset_Loader SHALL 从 `graphrag-benchmarking-datasets/data/MSFT/MSFT Multi Transcript Questions.csv` 和 `MSFT Single Transcript Questions.csv` 加载 MSFT 相关问题
-5. THE Dataset_Loader SHALL 从 `graphrag-benchmarking-datasets/data/HotPotQA/input/` 目录加载 HotPotQA 文本文件（`test_*.txt`），从 `HotPotQA Filtered Questions.csv` 加载问题
+1. THE Dataset_Loader SHALL 从 `GraphRAG-Benchmark/Datasets/Corpus/medical.json` 加载 Medical 语料文本，写入 GraphRAG input 目录
+2. THE Dataset_Loader SHALL 从 `GraphRAG-Benchmark/Datasets/Questions/medical_questions.json` 加载问题列表，包含 `question`、`answer`（ground_truth）、`evidence` 字段
+3. THE Dataset_Loader SHALL 从 `GraphRAG-Benchmark/Datasets/Corpus/novel.json` 加载 Novel 语料（20 篇小说），每篇写入独立 txt 文件
+4. THE Dataset_Loader SHALL 从 `GraphRAG-Benchmark/Datasets/Questions/novel_questions.json` 加载问题列表，包含 `question`、`answer`（ground_truth）、`evidence` 字段
+5. THE Dataset_Loader SHALL 将问题的 `answer` 字段作为 ground_truth 传递给评估流程
 6. WHEN 数据集文件不存在或格式异常时，THE Dataset_Loader SHALL 输出警告信息并跳过该数据集
 7. THE Test_Runner SHALL 对每个 Embedding_Model 和每个数据集的组合执行查询，收集生成的答案和检索到的上下文
 

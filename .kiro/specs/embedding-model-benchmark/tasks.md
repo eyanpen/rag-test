@@ -134,8 +134,8 @@
     - _需求: 1.1, 1.2, 1.6, 1.7, 1.9, 7.5_
 
 - [x] 11. 最终检查点 — 端到端验证
-  - 使用 `--sample 1 --dataset kevin_scott --models "BAAI/bge-m3"` 运行端到端测试
-  - 验证 FalkorDB 中图 `bge-m3_kevin_scott` 已创建且包含向量数据
+  - 使用 `--sample 1 --dataset medical --models "BAAI/bge-m3"` 运行端到端测试
+  - 验证 FalkorDB 中图 `bge-m3_medical` 已创建且包含向量数据
   - 验证 `benchmark_report.md` 和 `summary.json` 正确生成
   - 如有问题请向用户确认。
 
