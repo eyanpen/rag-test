@@ -186,8 +186,59 @@ RETURN neighbor.title, neighbor.description
 | 用 `MERGE` 而非 `CREATE` | 重跑幂等，不产生重复数据 |
 | 放在 Phase 10 之后 | 每个 embedding 模型有独立 graph_name，需写入对应图 |
 | sync 失败只 warning | 不影响 benchmark 主流程 |
-| description 截断 5000 字符 | 避免超长文本导致 Cypher 执行问题 |
+| description 完整写入不截断 | 实测数据最长 3077 字符，FalkorDB 字符串属性无长度限制 |
 | 图结构与向量节点共存同一 graph | 可在同一图内组合向量搜索和图遍历 |
+
+### 关于 description 截断的讨论
+
+早期实现中对 description 做了 `[:5000]` 截断，后经分析已移除。以下是完整讨论记录。
+
+#### 实测数据：截断不会触发
+
+| 文件 | 行数 | description 最大长度 | >5000 的行数 |
+|------|------|---------------------|-------------|
+| entities.parquet | 3353 | 3077 | 0 |
+| relationships.parquet | 5776 | 2975 | 0 |
+
+GraphRAG 的 `summarize_descriptions` workflow 有 `max_length` 限制（默认 500 tokens），description 在 pipeline 阶段就已被摘要压缩，不会出现超长文本。
+
+#### 如果截断了会怎样？
+
+FalkorDB 中存在两套独立的数据：
+
+```
+向量节点 (entity_description_embedding)
+  └── 用于 similarity_search_by_vector()，embedding 从完整文本生成，不受截断影响
+
+图结构节点 (ORGANIZATION, PERSON, ...)
+  └── 用于图遍历 MATCH (e)-[:RELATED]->(neighbor) RETURN neighbor.description
+      如果 description 被截断，这里返回的就是残缺的
+```
+
+向量搜索本身不受影响（embedding 在截断之前就已生成，存在独立的向量节点里）。但如果通过图遍历召回邻居节点的 description，拿到的就是 `graph_sync` 写入的那份——截断了就是残缺的。
+
+**结论：description 必须完整写入，不能截断。**
+
+#### FalkorDB / Cypher 有字符串长度限制吗？
+
+没有。截断不是 FalkorDB 的技术要求：
+
+- FalkorDB 字符串属性值：**无长度上限**，只受可用内存约束
+- 单条 Cypher 查询文本：默认最大 512MB（Redis 协议限制）
+- 节点/边属性数量：无硬性限制
+
+真正可能出问题的场景是把 description 直接拼进 Cypher 字符串（字符串插值），超长文本中的特殊字符可能导致语法错误。但 `graph_sync.py` 使用的是**参数化查询**：
+
+```python
+graph.query(
+    "MATCH (a {title: $src}), (b {title: $tgt}) "
+    "MERGE (a)-[r:RELATED {id: $rid}]->(b) "
+    "SET r.description = $desc, r.weight = $weight",
+    params,  # ← description 通过参数传入，不拼接到查询字符串
+)
+```
+
+参数化查询下，description 长度对 Cypher 解析器完全透明，不存在注入或解析问题。
 
 ### 同步后的完整架构
 

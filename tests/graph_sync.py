@@ -29,13 +29,14 @@ def sync_graph_to_falkordb(
 
     # ── Nodes ──
     entities_df = pd.read_parquet(entities_path)
-    log.info("Syncing %d entities to FalkorDB graph '%s'", len(entities_df), graph_name)
+    max_desc_len = entities_df["description"].str.len().max()
+    log.info("Syncing %d entities to FalkorDB graph '%s' (max description: %d chars)", len(entities_df), graph_name, max_desc_len)
     for _, row in entities_df.iterrows():
         entity_type = str(row.get("type", "Entity")).replace(" ", "_")
         params = {
             "eid": str(row["id"]),
             "title": str(row.get("title", "")),
-            "description": str(row.get("description", ""))[:5000],
+            "description": str(row.get("description", "")),
             "degree": int(row.get("degree", 0)),
         }
         graph.query(
@@ -52,7 +53,7 @@ def sync_graph_to_falkordb(
             "src": str(row["source"]),
             "tgt": str(row["target"]),
             "rid": str(row["id"]),
-            "desc": str(row.get("description", ""))[:5000],
+            "desc": str(row.get("description", "")),
             "weight": float(row.get("weight", 1.0)),
         }
         graph.query(
