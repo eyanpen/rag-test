@@ -26,6 +26,8 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 import pandas as pd
+import litellm
+litellm.drop_params = True
 
 # Add GraphRAG-Benchmark to path
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -170,6 +172,16 @@ class AdaptiveConcurrencyController:
 
         async def _on_request(request):
             ctrl._req_start_times[id(request)] = time.time()
+            # Strip encoding_format=None from embedding requests
+            if request.method == "POST" and request.content:
+                try:
+                    body = json.loads(request.content)
+                    if "encoding_format" in body and body["encoding_format"] is None:
+                        del body["encoding_format"]
+                        request._content = json.dumps(body).encode("utf-8")
+                        request.headers["content-length"] = str(len(request._content))
+                except Exception:
+                    pass
 
         async def _on_response(response):
             start = ctrl._req_start_times.pop(id(response.request), None)
@@ -184,7 +196,7 @@ class AdaptiveConcurrencyController:
                 ctrl.adjust(response.status_code >= 500)
 
         def patched_init(self_client, *args, **kwargs):
-            hooks = kwargs.get("event_hooks", {})
+            hooks = kwargs.get("event_hooks") or {}
             hooks.setdefault("request", []).append(_on_request)
             hooks.setdefault("response", []).append(_on_response)
             kwargs["event_hooks"] = hooks
@@ -196,6 +208,28 @@ class AdaptiveConcurrencyController:
 
         httpx.AsyncClient.__init__ = patched_init
         httpx.AsyncClient.send = throttled_send
+
+        # Also patch sync Client to strip encoding_format=None
+        _orig_sync_send = httpx.Client.send
+
+        def patched_sync_send(self_client, request, *args, **kwargs):
+            if request.method == "POST" and request.content:
+                try:
+                    body = json.loads(request.content)
+                    if "encoding_format" in body and body["encoding_format"] is None:
+                        del body["encoding_format"]
+                        new_content = json.dumps(body).encode("utf-8")
+                        request = httpx.Request(
+                            method=request.method,
+                            url=request.url,
+                            headers={k: v for k, v in request.headers.items() if k.lower() != "content-length"},
+                            content=new_content,
+                        )
+                except Exception:
+                    pass
+            return _orig_sync_send(self_client, request, *args, **kwargs)
+
+        httpx.Client.send = patched_sync_send
         self._start_stats_printer()
 
     def _start_stats_printer(self):
@@ -462,6 +496,11 @@ async def run_phase_10(
     output_dir = os.path.join(workspace_dir, "output")
     cache_dir = os.path.join(workspace_dir, "cache")
 
+    # Clear embedding cache to avoid reusing vectors from a different model
+    emb_cache = os.path.join(cache_dir, "text_embedding")
+    if os.path.isdir(emb_cache):
+        shutil.rmtree(emb_cache)
+
     graph_name = make_graph_name(model_config.name, dataset_name)
 
     grc = _build_graphrag_config(
@@ -581,7 +620,7 @@ async def run_queries(
         qid = q["question_id"]
         qtext = q["question_text"]
         try:
-            result = await search_engine.asearch(qtext)
+            result = await search_engine.search(qtext)
             context_texts = []
             if hasattr(result, "context_data"):
                 for key, val in result.context_data.items():

@@ -61,7 +61,16 @@ class FalkorDBVectorStore(VectorStore):
         """Create vector index in FalkorDB (handled implicitly)."""
         pass
 
+    def load_documents(self, documents: list[VectorStoreDocument]) -> None:
+        """Load documents into the vector store."""
+        for document in documents:
+            self._insert_one(document)
+
     def insert(self, document: VectorStoreDocument) -> None:
+        """Insert a single document with its vector into FalkorDB."""
+        self._insert_one(document)
+
+    def _insert_one(self, document: VectorStoreDocument) -> None:
         """Insert a single document with its vector into FalkorDB."""
         self._prepare_document(document)
         props: dict[str, Any] = {"id": str(document.id)}
