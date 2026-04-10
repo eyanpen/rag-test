@@ -14,12 +14,11 @@ import math
 import os
 import shutil
 import sys
-import threading
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import httpx
 import pandas as pd
@@ -31,313 +30,23 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(SCRIPT_DIR)
 sys.path.insert(0, os.path.join(PROJECT_DIR, "GraphRAG-Benchmark"))
 
+from models import (
+    BenchmarkConfig,
+    BenchmarkSummary,
+    DatasetPhaseResult,
+    EMBEDDING_MODELS,
+    EmbeddingModelConfig,
+    EvaluationResult,
+    ModelResult,
+    PredictionItem,
+    make_graph_name,
+    sanitize_name,
+)
+from concurrency import AdaptiveConcurrencyController
+from dataset_loader import DatasetLoader
+from report_generator import ReportGenerator
+
 log = logging.getLogger(__name__)
-
-# ── Data Models ──
-
-
-@dataclass
-class EmbeddingModelConfig:
-    name: str
-    dim: int
-    max_tokens: int
-    display_name: str
-
-
-@dataclass
-class BenchmarkConfig:
-    api_base_url: str = "http://10.210.156.69:8633"
-    llm_model: str = "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
-    falkordb_host: str = "10.210.156.69"
-    falkordb_port: int = 6379
-    sample_size: int = 5
-    datasets: List[str] = field(default_factory=lambda: ["medical"])
-    models: List["EmbeddingModelConfig"] = field(default_factory=lambda: EMBEDDING_MODELS)
-    output_dir: str = "tests/benchmark_results"
-    data_root: str = "GraphRAG-Benchmark/Datasets"
-    graphrag_root: str = "/home/eyanpen/sourceCode/rnd-ai-engine-features/graphrag"
-
-
-@dataclass
-class DatasetPhaseResult:
-    """数据集 Phase 1-9 共享阶段结果"""
-    dataset_name: str
-    phase_1_9_time_seconds: float
-    output_dir: str
-    error: Optional[str] = None
-
-
-@dataclass
-class PredictionItem:
-    id: str
-    question: str
-    source: str
-    context: List[str]
-    generated_answer: str
-    ground_truth: str
-    error: Optional[str] = None
-
-
-@dataclass
-class EvaluationResult:
-    model_name: str
-    dataset_name: str
-    rouge_l: float
-    answer_correctness: float
-    eval_time_seconds: float
-
-
-@dataclass
-class ModelResult:
-    model: EmbeddingModelConfig
-    dataset_name: str
-    predictions: List[PredictionItem] = field(default_factory=list)
-    evaluation: Optional[EvaluationResult] = None
-    embedding_time_seconds: float = 0.0
-    query_time_seconds: float = 0.0
-    error: Optional[str] = None
-
-
-@dataclass
-class BenchmarkSummary:
-    config: BenchmarkConfig
-    dataset_phases: List[DatasetPhaseResult] = field(default_factory=list)
-    model_results: List[ModelResult] = field(default_factory=list)
-    start_time: str = ""
-    end_time: str = ""
-    total_time_seconds: float = 0.0
-
-
-# ── Constants ──
-
-EMBEDDING_MODELS = [
-    EmbeddingModelConfig("BAAI/bge-m3", 1024, 8192, "BGE-M3 (default)"),
-    EmbeddingModelConfig("BAAI/bge-m3/heavy", 1024, 8192, "BGE-M3 (heavy)"),
-    EmbeddingModelConfig("BAAI/bge-m3/interactive", 1024, 8192, "BGE-M3 (interactive)"),
-    EmbeddingModelConfig("intfloat/e5-mistral-7b-instruct", 4096, 4096, "E5-Mistral-7B"),
-    EmbeddingModelConfig("intfloat/multilingual-e5-large-instruct", 1024, 512, "mE5-Large"),
-    EmbeddingModelConfig("nomic-ai/nomic-embed-text-v1.5", 768, 8192, "Nomic-v1.5"),
-    EmbeddingModelConfig("Qwen/Qwen3-Embedding-8B", 4096, 8192, "Qwen3-Emb-8B"),
-    EmbeddingModelConfig("Qwen/Qwen3-Embedding-8B-Alt", 4096, 32768, "Qwen3-Emb-8B-Alt"),
-]
-
-
-def sanitize_name(model_name: str) -> str:
-    """Replace '/' with '-' and convert to lowercase. Used for FalkorDB graph naming."""
-    return model_name.replace("/", "-").lower()
-
-
-def make_graph_name(model_name: str, dataset_name: str) -> str:
-    """Generate FalkorDB graph name: sanitize(model) + '_' + dataset."""
-    return sanitize_name(model_name) + "_" + dataset_name
-
-
-# ── Adaptive Concurrency Controller ──
-
-
-class AdaptiveConcurrencyController:
-    def __init__(self, init=10, min_val=2, max_val=50):
-        self.current = init
-        self.min_val = min_val
-        self.max_val = max_val
-        self._success_streak = 0
-        self._lock = threading.Lock()
-        self._semaphore = asyncio.Semaphore(init)
-        self._stats: List[float] = []
-        self._stats_lock = threading.Lock()
-        self._req_start_times: Dict[int, float] = {}
-
-    def adjust(self, is_error: bool):
-        with self._lock:
-            old = self.current
-            if is_error:
-                self._success_streak = 0
-                self.current = max(self.min_val, self.current - 1)
-            else:
-                self._success_streak += 1
-                if self._success_streak >= 5:
-                    self._success_streak = 0
-                    self.current = min(self.max_val, self.current + 1)
-            if self.current != old:
-                log.info(f"[ADAPTIVE] concurrency {old} → {self.current}")
-                self._semaphore = asyncio.Semaphore(self.current)
-
-    def install_hooks(self):
-        ctrl = self
-        _orig_init = httpx.AsyncClient.__init__
-        _orig_send = httpx.AsyncClient.send
-
-        async def _on_request(request):
-            ctrl._req_start_times[id(request)] = time.time()
-            # Strip encoding_format=None from embedding requests
-            if request.method == "POST" and request.content:
-                try:
-                    body = json.loads(request.content)
-                    if "encoding_format" in body and body["encoding_format"] is None:
-                        del body["encoding_format"]
-                        request._content = json.dumps(body).encode("utf-8")
-                        request.headers["content-length"] = str(len(request._content))
-                except Exception:
-                    pass
-
-        async def _on_response(response):
-            start = ctrl._req_start_times.pop(id(response.request), None)
-            if start:
-                dur = time.time() - start
-                log.debug(
-                    f"[TIMING] {response.request.method} {response.request.url} "
-                    f"→ {response.status_code} in {dur:.2f}s"
-                )
-                with ctrl._stats_lock:
-                    ctrl._stats.append(dur)
-                ctrl.adjust(response.status_code >= 500)
-
-        def patched_init(self_client, *args, **kwargs):
-            hooks = kwargs.get("event_hooks") or {}
-            hooks.setdefault("request", []).append(_on_request)
-            hooks.setdefault("response", []).append(_on_response)
-            kwargs["event_hooks"] = hooks
-            _orig_init(self_client, *args, **kwargs)
-
-        async def throttled_send(self_client, request, *args, **kwargs):
-            async with ctrl._semaphore:
-                return await _orig_send(self_client, request, *args, **kwargs)
-
-        httpx.AsyncClient.__init__ = patched_init
-        httpx.AsyncClient.send = throttled_send
-
-        # Also patch sync Client to strip encoding_format=None
-        _orig_sync_send = httpx.Client.send
-
-        def patched_sync_send(self_client, request, *args, **kwargs):
-            if request.method == "POST" and request.content:
-                try:
-                    body = json.loads(request.content)
-                    if "encoding_format" in body and body["encoding_format"] is None:
-                        del body["encoding_format"]
-                        new_content = json.dumps(body).encode("utf-8")
-                        request = httpx.Request(
-                            method=request.method,
-                            url=request.url,
-                            headers={k: v for k, v in request.headers.items() if k.lower() != "content-length"},
-                            content=new_content,
-                        )
-                except Exception:
-                    pass
-            return _orig_sync_send(self_client, request, *args, **kwargs)
-
-        httpx.Client.send = patched_sync_send
-        self._start_stats_printer()
-
-    def _start_stats_printer(self):
-        def _run():
-            loop = asyncio.new_event_loop()
-            loop.run_until_complete(self._print_stats())
-        threading.Thread(target=_run, daemon=True).start()
-
-    async def _print_stats(self):
-        while True:
-            await asyncio.sleep(60)
-            with self._stats_lock:
-                snap = self._stats.copy()
-                self._stats.clear()
-            if snap:
-                log.info(
-                    f"[STATS] Last 60s: count={len(snap)}, "
-                    f"min={min(snap):.2f}s, max={max(snap):.2f}s, "
-                    f"avg={sum(snap)/len(snap):.2f}s"
-                )
-
-
-# ── Dataset Loader ──
-
-
-class DatasetLoader:
-    @staticmethod
-    def prepare_medical(datasets_root: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
-        """Load medical corpus and questions from GraphRAG-Benchmark/Datasets/.
-
-        Writes corpus text as a single .txt file into output_dir.
-        Returns questions list (with ground_truth) or None on error.
-        """
-        try:
-            corpus_path = os.path.join(datasets_root, "Corpus", "medical.json")
-            if not os.path.isfile(corpus_path):
-                log.warning(f"Medical corpus not found: {corpus_path}")
-                return None
-            os.makedirs(output_dir, exist_ok=True)
-            with open(corpus_path, encoding="utf-8") as f:
-                corpus = json.load(f)
-            # medical.json is a single dict with "corpus_name" and "context"
-            context = corpus.get("context", "")
-            with open(os.path.join(output_dir, "medical.txt"), "w", encoding="utf-8") as fout:
-                fout.write(context)
-
-            questions_path = os.path.join(datasets_root, "Questions", "medical_questions.json")
-            if not os.path.isfile(questions_path):
-                log.warning(f"Medical questions not found: {questions_path}")
-                return None
-            with open(questions_path, encoding="utf-8") as f:
-                raw_questions = json.load(f)
-            questions = []
-            for q in raw_questions:
-                questions.append({
-                    "question_id": q.get("id", ""),
-                    "question_text": q.get("question", ""),
-                    "ground_truth": q.get("answer", ""),
-                    "evidence": q.get("evidence", ""),
-                    "question_type": q.get("question_type", ""),
-                    "source": q.get("source", "Medical"),
-                })
-            log.info(f"Medical: {len(questions)} questions loaded with ground_truth")
-            return questions
-        except Exception as e:
-            log.warning(f"Failed to prepare medical: {e}")
-            return None
-
-    @staticmethod
-    def prepare_novel(datasets_root: str, output_dir: str) -> Optional[List[Dict[str, str]]]:
-        """Load novel corpus and questions from GraphRAG-Benchmark/Datasets/.
-
-        Writes each novel as a separate .txt file into output_dir.
-        Returns questions list (with ground_truth) or None on error.
-        """
-        try:
-            corpus_path = os.path.join(datasets_root, "Corpus", "novel.json")
-            if not os.path.isfile(corpus_path):
-                log.warning(f"Novel corpus not found: {corpus_path}")
-                return None
-            os.makedirs(output_dir, exist_ok=True)
-            with open(corpus_path, encoding="utf-8") as f:
-                corpus_list = json.load(f)
-            # novel.json is a list of dicts, each with "corpus_name" and "context"
-            for item in corpus_list:
-                name = item.get("corpus_name", "unknown")
-                context = item.get("context", "")
-                with open(os.path.join(output_dir, f"{name}.txt"), "w", encoding="utf-8") as fout:
-                    fout.write(context)
-
-            questions_path = os.path.join(datasets_root, "Questions", "novel_questions.json")
-            if not os.path.isfile(questions_path):
-                log.warning(f"Novel questions not found: {questions_path}")
-                return None
-            with open(questions_path, encoding="utf-8") as f:
-                raw_questions = json.load(f)
-            questions = []
-            for q in raw_questions:
-                questions.append({
-                    "question_id": q.get("id", ""),
-                    "question_text": q.get("question", ""),
-                    "ground_truth": q.get("answer", ""),
-                    "evidence": q.get("evidence", ""),
-                    "question_type": q.get("question_type", ""),
-                    "source": q.get("source", ""),
-                })
-            log.info(f"Novel: {len(questions)} questions loaded with ground_truth")
-            return questions
-        except Exception as e:
-            log.warning(f"Failed to prepare novel: {e}")
-            return None
 
 
 # ── GraphRAG Pipeline Integration ──
@@ -421,7 +130,6 @@ async def run_phase_1_9(config: BenchmarkConfig, dataset_name: str, workspace_di
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(cache_dir, exist_ok=True)
 
-    # Register pre-embedding pipeline (Phase 1-9 only)
     _pre_embedding_workflows = [
         "create_base_text_units",
         "create_final_documents",
@@ -491,7 +199,6 @@ async def run_phase_10(
     output_dir = os.path.join(workspace_dir, "output")
     cache_dir = os.path.join(workspace_dir, "cache")
 
-    # Clear embedding cache to avoid reusing vectors from a different model
     emb_cache = os.path.join(cache_dir, "text_embedding")
     if os.path.isdir(emb_cache):
         shutil.rmtree(emb_cache)
@@ -518,7 +225,6 @@ async def run_phase_10(
     )
 
     t0 = time.time()
-    # Import and register FalkorDB vector store
     sys.path.insert(0, SCRIPT_DIR)
     import falkordb_vector_store  # noqa: F401 — registers "falkordb" type
 
@@ -573,7 +279,6 @@ async def run_queries(
         graph_name=graph_name,
     )
 
-    # Read parquet tables
     entities_df = pd.read_parquet(os.path.join(output_dir, "entities.parquet"))
     relationships_df = pd.read_parquet(os.path.join(output_dir, "relationships.parquet"))
     text_units_df = pd.read_parquet(os.path.join(output_dir, "text_units.parquet"))
@@ -585,7 +290,6 @@ async def run_queries(
     text_units = read_indexer_text_units(text_units_df)
     reports = read_indexer_reports(community_reports_df, communities_df, community_level=None)
 
-    # Create FalkorDB vector store for entity description embeddings
     sys.path.insert(0, SCRIPT_DIR)
     from falkordb_vector_store import FalkorDBVectorStore
     from graphrag.config.embeddings import entity_description_embedding
@@ -653,7 +357,6 @@ async def evaluate_predictions(
     rouge_scores: List[float] = []
     acc_scores: List[float] = []
 
-    # Lazy-init LLM and embeddings for answer correctness
     eval_llm = None
     eval_emb = None
 
@@ -661,7 +364,6 @@ async def evaluate_predictions(
         if p.error or not p.generated_answer.strip():
             continue
 
-        # ROUGE-L
         try:
             score = await compute_rouge_score(p.generated_answer, p.ground_truth)
             rouge_scores.append(score)
@@ -669,7 +371,6 @@ async def evaluate_predictions(
             log.debug(f"ROUGE failed for {p.id}: {e}")
             rouge_scores.append(float("nan"))
 
-        # Answer Correctness
         try:
             from Evaluation.metrics.answer_accuracy import compute_answer_correctness
             if eval_llm is None:
@@ -703,175 +404,6 @@ async def evaluate_predictions(
     )
 
 
-# ── Report Generator ──
-
-
-class ReportGenerator:
-    @staticmethod
-    def generate_markdown(summary: BenchmarkSummary) -> str:
-        lines = ["# Embedding 模型基准测试报告\n"]
-        lines.append(f"> 生成时间: {summary.end_time}\n")
-
-        # 1. 测试环境信息
-        lines.append("## 1. 测试环境信息\n")
-        lines.append("| 项目 | 值 |")
-        lines.append("|------|-----|")
-        lines.append(f"| API 地址 | {summary.config.api_base_url} |")
-        lines.append(f"| LLM 模型 | {summary.config.llm_model} |")
-        lines.append(f"| FalkorDB | {summary.config.falkordb_host}:{summary.config.falkordb_port} |")
-        lines.append(f"| 数据集 | {', '.join(summary.config.datasets)} |")
-        lines.append(f"| 采样数量 | {summary.config.sample_size} |")
-        lines.append(f"| 总耗时 | {summary.total_time_seconds:.1f}s |")
-        lines.append("")
-
-        # 2. 模型清单
-        lines.append("## 2. 模型清单\n")
-        lines.append("| 模型 | 维度 | 最大Token | 状态 |")
-        lines.append("|------|------|----------|------|")
-        for m in summary.config.models:
-            status = "✅"
-            for r in summary.model_results:
-                if r.model.name == m.name and r.error and "unavailable" in r.error.lower():
-                    status = "❌ 不可用"
-                    break
-            lines.append(f"| {m.display_name} | {m.dim} | {m.max_tokens} | {status} |")
-        lines.append("")
-
-        # 3. Phase 1-9 共享耗时
-        if summary.dataset_phases:
-            lines.append("## 3. Phase 1-9 共享耗时\n")
-            lines.append("| 数据集 | 耗时 | 状态 |")
-            lines.append("|--------|------|------|")
-            for dp in summary.dataset_phases:
-                status = "✅" if not dp.error else f"❌ {dp.error}"
-                lines.append(f"| {dp.dataset_name} | {dp.phase_1_9_time_seconds:.1f}s | {status} |")
-            lines.append("")
-
-        # 4. Per-dataset metrics
-        ds_names = sorted(set(r.dataset_name for r in summary.model_results))
-        for ds in ds_names:
-            ds_results = [r for r in summary.model_results if r.dataset_name == ds and r.evaluation]
-            if not ds_results:
-                continue
-            lines.append(f"## 4. 指标对比表 — {ds}\n")
-            lines.append("| 模型 | ROUGE-L | Answer Correctness | Phase 10 耗时 | 查询耗时 |")
-            lines.append("|------|---------|-------------------|-------------|---------|")
-            rouges = [r.evaluation.rouge_l for r in ds_results if r.evaluation and not math.isnan(r.evaluation.rouge_l)]
-            accs = [r.evaluation.answer_correctness for r in ds_results if r.evaluation and not math.isnan(r.evaluation.answer_correctness)]
-            best_rouge = max(rouges) if rouges else None
-            best_acc = max(accs) if accs else None
-            for r in ds_results:
-                ev = r.evaluation
-                rv = f"{ev.rouge_l:.4f}" if not math.isnan(ev.rouge_l) else "NaN"
-                av = f"{ev.answer_correctness:.4f}" if not math.isnan(ev.answer_correctness) else "NaN"
-                if best_rouge is not None and not math.isnan(ev.rouge_l) and ev.rouge_l == best_rouge:
-                    rv = f"**{rv}**"
-                if best_acc is not None and not math.isnan(ev.answer_correctness) and ev.answer_correctness == best_acc:
-                    av = f"**{av}**"
-                lines.append(f"| {r.model.display_name} | {rv} | {av} | {r.embedding_time_seconds:.1f}s | {r.query_time_seconds:.1f}s |")
-            lines.append("")
-
-        # 5. BGE-M3 模式对比
-        bge_results = [r for r in summary.model_results if r.model.name.startswith("BAAI/bge-m3") and r.evaluation]
-        if bge_results:
-            lines.append("## 5. BGE-M3 模式对比\n")
-            lines.append("| 模式 | 数据集 | ROUGE-L | Answer Correctness |")
-            lines.append("|------|--------|---------|-------------------|")
-            rouges = [r.evaluation.rouge_l for r in bge_results if not math.isnan(r.evaluation.rouge_l)]
-            accs = [r.evaluation.answer_correctness for r in bge_results if not math.isnan(r.evaluation.answer_correctness)]
-            br = max(rouges) if rouges else None
-            ba = max(accs) if accs else None
-            for r in bge_results:
-                ev = r.evaluation
-                rv = f"{ev.rouge_l:.4f}" if not math.isnan(ev.rouge_l) else "NaN"
-                av = f"{ev.answer_correctness:.4f}" if not math.isnan(ev.answer_correctness) else "NaN"
-                if br and not math.isnan(ev.rouge_l) and ev.rouge_l == br:
-                    rv = f"**{rv}**"
-                if ba and not math.isnan(ev.answer_correctness) and ev.answer_correctness == ba:
-                    av = f"**{av}**"
-                lines.append(f"| {r.model.display_name} | {r.dataset_name} | {rv} | {av} |")
-            lines.append("")
-
-        # 6. 总体排名
-        lines.append("## 6. 总体排名\n")
-        model_scores: Dict[str, List[float]] = {}
-        for r in summary.model_results:
-            if r.evaluation:
-                vals = []
-                if not math.isnan(r.evaluation.rouge_l):
-                    vals.append(r.evaluation.rouge_l)
-                if not math.isnan(r.evaluation.answer_correctness):
-                    vals.append(r.evaluation.answer_correctness)
-                if vals:
-                    model_scores.setdefault(r.model.display_name, []).extend(vals)
-        ranked = sorted(model_scores.items(), key=lambda x: sum(x[1]) / len(x[1]) if x[1] else 0, reverse=True)
-        lines.append("| 排名 | 模型 | 加权平均分 |")
-        lines.append("|------|------|----------|")
-        for i, (name, scores) in enumerate(ranked, 1):
-            avg = sum(scores) / len(scores) if scores else 0
-            lines.append(f"| {i} | {name} | {avg:.4f} |")
-        lines.append("")
-
-        # 7. 耗时统计
-        lines.append("## 7. 耗时统计\n")
-        lines.append("| 模型 | 数据集 | Phase 10 | 查询时间 | 评估时间 | 总时间 |")
-        lines.append("|------|--------|---------|---------|---------|--------|")
-        for r in summary.model_results:
-            et = r.evaluation.eval_time_seconds if r.evaluation else 0
-            total = r.embedding_time_seconds + r.query_time_seconds + et
-            lines.append(
-                f"| {r.model.display_name} | {r.dataset_name} "
-                f"| {r.embedding_time_seconds:.1f}s | {r.query_time_seconds:.1f}s "
-                f"| {et:.1f}s | {total:.1f}s |"
-            )
-        lines.append("")
-        return "\n".join(lines)
-
-    @staticmethod
-    def generate_summary_json(summary: BenchmarkSummary) -> dict:
-        results = []
-        for r in summary.model_results:
-            entry: Dict[str, Any] = {
-                "model": r.model.display_name,
-                "model_name": r.model.name,
-                "dataset": r.dataset_name,
-                "error": r.error,
-                "embedding_time": r.embedding_time_seconds,
-                "query_time": r.query_time_seconds,
-                "num_predictions": len(r.predictions),
-            }
-            if r.evaluation:
-                entry["rouge_l"] = r.evaluation.rouge_l
-                entry["answer_correctness"] = r.evaluation.answer_correctness
-                entry["eval_time"] = r.evaluation.eval_time_seconds
-            results.append(entry)
-
-        dataset_phases = []
-        for dp in summary.dataset_phases:
-            dataset_phases.append({
-                "dataset": dp.dataset_name,
-                "phase_1_9_time": dp.phase_1_9_time_seconds,
-                "output_dir": dp.output_dir,
-                "error": dp.error,
-            })
-
-        return {
-            "config": {
-                "api_base_url": summary.config.api_base_url,
-                "llm_model": summary.config.llm_model,
-                "falkordb": f"{summary.config.falkordb_host}:{summary.config.falkordb_port}",
-                "sample_size": summary.config.sample_size,
-                "datasets": summary.config.datasets,
-                "models": [m.name for m in summary.config.models],
-            },
-            "start_time": summary.start_time,
-            "end_time": summary.end_time,
-            "total_time_seconds": summary.total_time_seconds,
-            "dataset_phases": dataset_phases,
-            "results": results,
-        }
-
-
 # ── Main ──
 
 
@@ -883,7 +415,6 @@ async def async_main(config: BenchmarkConfig):
     os.makedirs(os.path.join(config.output_dir, "predictions"), exist_ok=True)
     os.makedirs(os.path.join(config.output_dir, "evaluations"), exist_ok=True)
 
-    # Resolve data_root relative to project dir
     data_root = config.data_root
     if not os.path.isabs(data_root):
         data_root = os.path.join(PROJECT_DIR, data_root)
@@ -896,7 +427,6 @@ async def async_main(config: BenchmarkConfig):
         input_dir = os.path.join(workspace_dir, "input")
         os.makedirs(input_dir, exist_ok=True)
 
-        # Load dataset
         questions = None
         if ds_name == "medical":
             questions = DatasetLoader.prepare_medical(data_root, input_dir)
@@ -911,13 +441,11 @@ async def async_main(config: BenchmarkConfig):
             ))
             continue
 
-        # Sample questions
         if config.sample_size and config.sample_size < len(questions):
             questions = questions[:config.sample_size]
         dataset_questions[ds_name] = questions
         log.info(f"Dataset {ds_name}: {len(questions)} questions prepared")
 
-        # Run Phase 1-9
         log.info(f"=== Phase 1-9 for {ds_name} ===")
         phase_result = await run_phase_1_9(config, ds_name, workspace_dir)
         summary.dataset_phases.append(phase_result)
@@ -940,7 +468,6 @@ async def async_main(config: BenchmarkConfig):
 
     # ── Step 3: Phase 10 + Query + Evaluate per model × dataset ──
     for ds_name, questions in dataset_questions.items():
-        # Check if Phase 1-9 succeeded for this dataset
         phase = next((p for p in summary.dataset_phases if p.dataset_name == ds_name), None)
         if phase is None or phase.error:
             continue
@@ -951,7 +478,6 @@ async def async_main(config: BenchmarkConfig):
             mr = ModelResult(model=model, dataset_name=ds_name)
             log.info(f"=== {model.display_name} × {ds_name} ===")
 
-            # Phase 10
             try:
                 log.info(f"Phase 10: embedding with {model.display_name}")
                 mr.embedding_time_seconds = await run_phase_10(config, ds_name, workspace_dir, model)
@@ -961,7 +487,6 @@ async def async_main(config: BenchmarkConfig):
                 summary.model_results.append(mr)
                 continue
 
-            # Query
             try:
                 log.info(f"Querying {len(questions)} questions with {model.display_name}")
                 t0 = time.time()
@@ -973,13 +498,11 @@ async def async_main(config: BenchmarkConfig):
                 summary.model_results.append(mr)
                 continue
 
-            # Save predictions
             safe = sanitize_name(model.name)
             pred_path = os.path.join(config.output_dir, "predictions", f"{safe}__{ds_name}.json")
             with open(pred_path, "w", encoding="utf-8") as f:
                 json.dump([asdict(p) for p in mr.predictions], f, indent=2, ensure_ascii=False)
 
-            # Evaluate
             if mr.predictions:
                 log.info(f"Evaluating {model.display_name}/{ds_name}")
                 try:
@@ -1024,7 +547,6 @@ def main():
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Dual logging: console INFO + file DEBUG
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(message)s",
         level=logging.DEBUG,
@@ -1035,7 +557,6 @@ def main():
     )
     logging.getLogger().handlers[0].setLevel(logging.INFO)
 
-    # Select models
     if args.models:
         names = [n.strip() for n in args.models.split(",")]
         models = [m for m in EMBEDDING_MODELS if m.name in names]
@@ -1053,7 +574,6 @@ def main():
         graphrag_root=args.graphrag_root,
     )
 
-    # Install adaptive concurrency hooks
     ac = AdaptiveConcurrencyController()
     ac.install_hooks()
 
