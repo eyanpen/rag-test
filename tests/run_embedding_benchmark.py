@@ -640,6 +640,8 @@ def main():
         ],
     )
     logging.getLogger().handlers[0].setLevel(logging.INFO)
+    logging.getLogger("LiteLLM").setLevel(logging.INFO)
+    logging.getLogger("litellm").setLevel(logging.INFO)
 
     if args.models:
         names = [n.strip() for n in args.models.split(",")]
