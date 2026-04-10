@@ -44,6 +44,7 @@ from models import (
 )
 from concurrency import AdaptiveConcurrencyController
 from dataset_loader import DatasetLoader
+from graph_sync import sync_graph_to_falkordb
 from report_generator import ReportGenerator
 
 log = logging.getLogger(__name__)
@@ -558,6 +559,17 @@ async def async_main(config: BenchmarkConfig):
                 mr.error = str(e)
                 summary.model_results.append(mr)
                 continue
+
+            # Sync graph structure (entities + relationships) into FalkorDB
+            try:
+                sync_graph_to_falkordb(
+                    output_dir=os.path.join(workspace_dir, "output"),
+                    host=config.falkordb_host,
+                    port=config.falkordb_port,
+                    graph_name=make_graph_name(model.name, ds_name),
+                )
+            except Exception as e:
+                log.warning(f"Graph sync failed for {model.display_name}/{ds_name}: {e}")
 
             try:
                 log.info(f"Querying {len(questions)} questions with {model.display_name}")
