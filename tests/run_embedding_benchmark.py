@@ -61,6 +61,7 @@ def _build_graphrag_config(
     embedding_model_name: str = "BAAI/bge-m3",
     embedding_dim: int = 1024,
     graph_name: str = "default",
+    prompts_dir: str | None = None,
 ) -> Any:
     """Build a GraphRagConfig programmatically for a dataset."""
     from graphrag_llm.config import ModelConfig
@@ -69,6 +70,9 @@ def _build_graphrag_config(
     from graphrag_storage.tables.table_provider_config import TableProviderConfig
     from graphrag_vectors import VectorStoreConfig, IndexSchema
     from graphrag.config.models.graph_rag_config import GraphRagConfig
+    from graphrag.config.models.extract_graph_config import ExtractGraphConfig
+    from graphrag.config.models.summarize_descriptions_config import SummarizeDescriptionsConfig
+    from graphrag.config.models.community_reports_config import CommunityReportsConfig
     from graphrag.config.embeddings import all_embeddings
 
     completion_models = {
@@ -105,6 +109,14 @@ def _build_graphrag_config(
         index_schema=index_schema,
     )
 
+    # Resolve prompt file paths from prompts_dir if available
+    def _prompt_path(filename: str) -> str | None:
+        if prompts_dir:
+            p = os.path.join(prompts_dir, filename)
+            if os.path.isfile(p):
+                return str(Path(p).resolve())
+        return None
+
     grc = GraphRagConfig(
         completion_models=completion_models,
         embedding_models=embedding_models,
@@ -114,11 +126,61 @@ def _build_graphrag_config(
         cache=CacheConfig(storage=StorageConfig(base_dir=str(Path(cache_dir).resolve()))),
         table_provider=TableProviderConfig(),
         vector_store=vector_store,
+        extract_graph=ExtractGraphConfig(
+            prompt=_prompt_path("extract_graph.txt"),
+        ),
+        summarize_descriptions=SummarizeDescriptionsConfig(
+            prompt=_prompt_path("summarize_descriptions.txt"),
+        ),
+        community_reports=CommunityReportsConfig(
+            graph_prompt=_prompt_path("community_report_graph.txt"),
+        ),
     )
     return grc
 
 
-async def run_phase_1_9(config: BenchmarkConfig, dataset_name: str, workspace_dir: str) -> DatasetPhaseResult:
+async def run_prompt_tune(config: BenchmarkConfig, workspace_dir: str) -> str:
+    """Run prompt-tune for a dataset, save prompts to workspace_dir/prompts/.
+
+    Returns the prompts directory path.
+    """
+    import graphrag.api as api
+
+    prompts_dir = os.path.join(workspace_dir, "prompts")
+    if os.path.isfile(os.path.join(prompts_dir, "extract_graph.txt")):
+        log.info(f"Prompt-tune: reusing existing prompts in {prompts_dir}")
+        return prompts_dir
+
+    input_dir = os.path.join(workspace_dir, "input")
+    output_dir = os.path.join(workspace_dir, "output")
+    cache_dir = os.path.join(workspace_dir, "cache")
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(cache_dir, exist_ok=True)
+
+    grc = _build_graphrag_config(config, "", input_dir, output_dir, cache_dir)
+
+    log.info("Prompt-tune: generating indexing prompts...")
+    extract_prompt, summarize_prompt, community_prompt = await api.generate_indexing_prompts(
+        config=grc,
+        limit=15,
+        selection_method=api.DocSelectionType.RANDOM,
+        discover_entity_types=True,
+    )
+
+    os.makedirs(prompts_dir, exist_ok=True)
+    for filename, content in [
+        ("extract_graph.txt", extract_prompt),
+        ("summarize_descriptions.txt", summarize_prompt),
+        ("community_report_graph.txt", community_prompt),
+    ]:
+        with open(os.path.join(prompts_dir, filename), "w", encoding="utf-8") as f:
+            f.write(content)
+
+    log.info(f"Prompt-tune: prompts saved to {prompts_dir}")
+    return prompts_dir
+
+
+async def run_phase_1_9(config: BenchmarkConfig, dataset_name: str, workspace_dir: str, prompts_dir: str | None = None) -> DatasetPhaseResult:
     """Execute Phase 1-9 (shared) for a dataset using GraphRAG pipeline."""
     from graphrag.index.workflows.factory import PipelineFactory
     from graphrag.index.run.run_pipeline import run_pipeline
@@ -145,7 +207,7 @@ async def run_phase_1_9(config: BenchmarkConfig, dataset_name: str, workspace_di
         ["load_input_documents", *_pre_embedding_workflows],
     )
 
-    grc = _build_graphrag_config(config, dataset_name, input_dir, output_dir, cache_dir)
+    grc = _build_graphrag_config(config, dataset_name, input_dir, output_dir, cache_dir, prompts_dir=prompts_dir)
 
     t0 = time.time()
     try:
@@ -184,6 +246,7 @@ async def run_phase_10(
     dataset_name: str,
     workspace_dir: str,
     model_config: EmbeddingModelConfig,
+    prompts_dir: str | None = None,
 ) -> float:
     """Execute Phase 10 (generate_text_embeddings) for a specific embedding model.
 
@@ -210,6 +273,7 @@ async def run_phase_10(
         embedding_model_name=model_config.name,
         embedding_dim=model_config.dim,
         graph_name=graph_name,
+        prompts_dir=prompts_dir,
     )
 
     output_storage = create_storage(grc.output_storage)
@@ -257,6 +321,7 @@ async def run_queries(
     workspace_dir: str,
     model_config: EmbeddingModelConfig,
     questions: List[Dict[str, str]],
+    prompts_dir: str | None = None,
 ) -> List[PredictionItem]:
     """Run GraphRAG local search queries for a model+dataset combination."""
     from graphrag.query.factory import get_local_search_engine
@@ -277,6 +342,7 @@ async def run_queries(
         embedding_model_name=model_config.name,
         embedding_dim=model_config.dim,
         graph_name=graph_name,
+        prompts_dir=prompts_dir,
     )
 
     entities_df = pd.read_parquet(os.path.join(output_dir, "entities.parquet"))
@@ -419,8 +485,9 @@ async def async_main(config: BenchmarkConfig):
     if not os.path.isabs(data_root):
         data_root = os.path.join(PROJECT_DIR, data_root)
 
-    # ── Step 1: Prepare datasets and run Phase 1-9 ──
+    # ── Step 1: Prepare datasets, prompt-tune, and run Phase 1-9 ──
     dataset_questions: Dict[str, List[Dict[str, str]]] = {}
+    dataset_prompts: Dict[str, str] = {}  # ds_name -> prompts_dir
 
     for ds_name in config.datasets:
         workspace_dir = os.path.join(config.output_dir, "workspace", ds_name)
@@ -446,8 +513,17 @@ async def async_main(config: BenchmarkConfig):
         dataset_questions[ds_name] = questions
         log.info(f"Dataset {ds_name}: {len(questions)} questions prepared")
 
+        # Prompt-tune for this dataset
+        log.info(f"=== Prompt-tune for {ds_name} ===")
+        try:
+            prompts_dir = await run_prompt_tune(config, workspace_dir)
+            dataset_prompts[ds_name] = prompts_dir
+        except Exception as e:
+            log.warning(f"Prompt-tune failed for {ds_name}, using default prompts: {e}")
+            dataset_prompts[ds_name] = None
+
         log.info(f"=== Phase 1-9 for {ds_name} ===")
-        phase_result = await run_phase_1_9(config, ds_name, workspace_dir)
+        phase_result = await run_phase_1_9(config, ds_name, workspace_dir, prompts_dir=dataset_prompts.get(ds_name))
         summary.dataset_phases.append(phase_result)
 
         if phase_result.error:
@@ -473,6 +549,7 @@ async def async_main(config: BenchmarkConfig):
             continue
 
         workspace_dir = os.path.join(config.output_dir, "workspace", ds_name)
+        prompts_dir = dataset_prompts.get(ds_name)
 
         for model in available_models:
             mr = ModelResult(model=model, dataset_name=ds_name)
@@ -480,7 +557,7 @@ async def async_main(config: BenchmarkConfig):
 
             try:
                 log.info(f"Phase 10: embedding with {model.display_name}")
-                mr.embedding_time_seconds = await run_phase_10(config, ds_name, workspace_dir, model)
+                mr.embedding_time_seconds = await run_phase_10(config, ds_name, workspace_dir, model, prompts_dir=prompts_dir)
             except Exception as e:
                 log.error(f"Phase 10 failed for {model.display_name}/{ds_name}: {e}")
                 mr.error = str(e)
@@ -490,7 +567,7 @@ async def async_main(config: BenchmarkConfig):
             try:
                 log.info(f"Querying {len(questions)} questions with {model.display_name}")
                 t0 = time.time()
-                mr.predictions = await run_queries(config, ds_name, workspace_dir, model, questions)
+                mr.predictions = await run_queries(config, ds_name, workspace_dir, model, questions, prompts_dir=prompts_dir)
                 mr.query_time_seconds = time.time() - t0
             except Exception as e:
                 log.error(f"Query failed for {model.display_name}/{ds_name}: {e}")
