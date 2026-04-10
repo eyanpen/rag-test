@@ -1014,7 +1014,7 @@ async def async_main(config: BenchmarkConfig):
 def main():
     parser = argparse.ArgumentParser(description="Embedding 模型基准测试")
     parser.add_argument("--sample", type=int, default=5)
-    parser.add_argument("--dataset", default="medical",
+    parser.add_argument("--dataset", default="all",
                         choices=["medical", "novel", "all"])
     parser.add_argument("--models", default="", help="Comma-separated model names, default=all")
     parser.add_argument("--output-dir", default=os.path.join(SCRIPT_DIR, "benchmark_results"))
