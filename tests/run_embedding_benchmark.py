@@ -246,7 +246,6 @@ async def run_phase_10(
     dataset_name: str,
     workspace_dir: str,
     model_config: EmbeddingModelConfig,
-    prompts_dir: str | None = None,
 ) -> float:
     """Execute Phase 10 (generate_text_embeddings) for a specific embedding model.
 
@@ -273,7 +272,6 @@ async def run_phase_10(
         embedding_model_name=model_config.name,
         embedding_dim=model_config.dim,
         graph_name=graph_name,
-        prompts_dir=prompts_dir,
     )
 
     output_storage = create_storage(grc.output_storage)
@@ -321,7 +319,6 @@ async def run_queries(
     workspace_dir: str,
     model_config: EmbeddingModelConfig,
     questions: List[Dict[str, str]],
-    prompts_dir: str | None = None,
 ) -> List[PredictionItem]:
     """Run GraphRAG local search queries for a model+dataset combination."""
     from graphrag.query.factory import get_local_search_engine
@@ -342,7 +339,6 @@ async def run_queries(
         embedding_model_name=model_config.name,
         embedding_dim=model_config.dim,
         graph_name=graph_name,
-        prompts_dir=prompts_dir,
     )
 
     entities_df = pd.read_parquet(os.path.join(output_dir, "entities.parquet"))
@@ -549,7 +545,6 @@ async def async_main(config: BenchmarkConfig):
             continue
 
         workspace_dir = os.path.join(config.output_dir, "workspace", ds_name)
-        prompts_dir = dataset_prompts.get(ds_name)
 
         for model in available_models:
             mr = ModelResult(model=model, dataset_name=ds_name)
@@ -557,7 +552,7 @@ async def async_main(config: BenchmarkConfig):
 
             try:
                 log.info(f"Phase 10: embedding with {model.display_name}")
-                mr.embedding_time_seconds = await run_phase_10(config, ds_name, workspace_dir, model, prompts_dir=prompts_dir)
+                mr.embedding_time_seconds = await run_phase_10(config, ds_name, workspace_dir, model)
             except Exception as e:
                 log.error(f"Phase 10 failed for {model.display_name}/{ds_name}: {e}")
                 mr.error = str(e)
@@ -567,7 +562,7 @@ async def async_main(config: BenchmarkConfig):
             try:
                 log.info(f"Querying {len(questions)} questions with {model.display_name}")
                 t0 = time.time()
-                mr.predictions = await run_queries(config, ds_name, workspace_dir, model, questions, prompts_dir=prompts_dir)
+                mr.predictions = await run_queries(config, ds_name, workspace_dir, model, questions)
                 mr.query_time_seconds = time.time() - t0
             except Exception as e:
                 log.error(f"Query failed for {model.display_name}/{ds_name}: {e}")
