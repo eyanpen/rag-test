@@ -42,13 +42,14 @@ async def evaluate_predictions(
     predictions: List[PredictionItem],
     model_name: str,
     dataset_name: str,
-) -> EvaluationResult:
+) -> tuple[EvaluationResult, List[dict]]:
     from Evaluation.metrics.rouge import compute_rouge_score
     from Evaluation.metrics.answer_accuracy import compute_answer_correctness
     from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
     t0 = time.time()
     rouge_scores, acc_scores = [], []
+    question_details: List[dict] = []
 
     eval_llm = ChatOpenAI(model="openai/gpt-oss-120b", base_url=config.api_base_url, api_key="no-key")
     eval_emb = OpenAIEmbeddings(
@@ -57,20 +58,51 @@ async def evaluate_predictions(
     )
 
     for p in predictions:
+        detail: dict = {
+            "id": p.id,
+            "question": p.question,
+            "ground_truth": p.ground_truth,
+            "generated_answer": p.generated_answer,
+            "rouge_l": None,
+            "answer_correctness": None,
+        }
+
         if p.error or not p.generated_answer.strip():
+            detail["error"] = p.error or "empty answer"
+            question_details.append(detail)
             continue
+
         try:
-            rouge_scores.append(await compute_rouge_score(p.generated_answer, p.ground_truth))
+            score = await compute_rouge_score(p.generated_answer, p.ground_truth)
+            rouge_scores.append(score)
+            detail["rouge_l"] = score
         except Exception as e:
             log.debug(f"ROUGE failed for {p.id}: {e}")
             rouge_scores.append(float("nan"))
+
         try:
-            score = await compute_answer_correctness(p.question, p.generated_answer, p.ground_truth, eval_llm, eval_emb)
-            acc_scores.append(score)
-            log.info(f"  {p.id}: answer_correctness={score:.4f}")
+            result = await compute_answer_correctness(
+                p.question, p.generated_answer, p.ground_truth,
+                eval_llm, eval_emb, return_details=True,
+            )
+            acc_scores.append(result["score"])
+            detail["answer_correctness"] = result["score"]
+            detail["factuality"] = result["factuality"]
+            detail["similarity"] = result["similarity"]
+            detail["tp"] = result["tp"]
+            detail["fp"] = result["fp"]
+            detail["fn"] = result["fn"]
+            detail["answer_statements"] = result["answer_statements"]
+            detail["gt_statements"] = result["gt_statements"]
+            detail["classification"] = result["classification"]
+            detail["weights"] = result["weights"]
+            log.info(f"  {p.id}: answer_correctness={result['score']:.4f} (fact={result['factuality']:.4f}, sim={result['similarity']:.4f}, TP={result['tp']}, FP={result['fp']}, FN={result['fn']})")
         except Exception as e:
             log.warning(f"  {p.id}: answer_correctness FAILED: {e}")
             acc_scores.append(float("nan"))
+            detail["answer_correctness_error"] = str(e)
+
+        question_details.append(detail)
 
     def safe_mean(vals):
         clean = [v for v in vals if not math.isnan(v)]
@@ -80,7 +112,7 @@ async def evaluate_predictions(
         model_name=model_name, dataset_name=dataset_name,
         rouge_l=safe_mean(rouge_scores), answer_correctness=safe_mean(acc_scores),
         eval_time_seconds=time.time() - t0,
-    )
+    ), question_details
 
 
 async def main():
@@ -129,10 +161,15 @@ async def main():
 
         log.info(f"=== Evaluating {model_cfg.display_name} × {ds_name} ({len(predictions)} predictions) ===")
         try:
-            mr.evaluation = await evaluate_predictions(config, predictions, model_cfg.display_name, ds_name)
+            mr.evaluation, question_details = await evaluate_predictions(config, predictions, model_cfg.display_name, ds_name)
             eval_path = os.path.join(EVAL_DIR, f"{model_key}__{ds_name}.json")
             with open(eval_path, "w") as f:
                 json.dump(asdict(mr.evaluation), f, indent=2, ensure_ascii=False)
+            # Write per-question details
+            details_path = os.path.join(EVAL_DIR, f"{model_key}__{ds_name}_details.json")
+            with open(details_path, "w") as f:
+                json.dump(question_details, f, indent=2, ensure_ascii=False)
+            log.info(f"  Details saved to {details_path}")
             ac = mr.evaluation.answer_correctness
             ac_str = f"{ac:.4f}" if not math.isnan(ac) else "NaN"
             log.info(f"  → rouge_l={mr.evaluation.rouge_l:.4f}, answer_correctness={ac_str}")

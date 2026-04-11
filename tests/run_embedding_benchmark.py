@@ -412,24 +412,40 @@ async def evaluate_predictions(
     predictions: List[PredictionItem],
     model_name: str,
     dataset_name: str,
-) -> EvaluationResult:
-    """Compute ROUGE-L and Answer Correctness for predictions."""
+) -> tuple[EvaluationResult, List[Dict]]:
+    """Compute ROUGE-L and Answer Correctness for predictions.
+
+    Returns (EvaluationResult, list of per-question detail dicts).
+    """
     from Evaluation.metrics.rouge import compute_rouge_score
 
     t0 = time.time()
     rouge_scores: List[float] = []
     acc_scores: List[float] = []
+    question_details: List[Dict] = []
 
     eval_llm = None
     eval_emb = None
 
     for p in predictions:
+        detail: Dict = {
+            "id": p.id,
+            "question": p.question,
+            "ground_truth": p.ground_truth,
+            "generated_answer": p.generated_answer,
+            "rouge_l": None,
+            "answer_correctness": None,
+        }
+
         if p.error or not p.generated_answer.strip():
+            detail["error"] = p.error or "empty answer"
+            question_details.append(detail)
             continue
 
         try:
             score = await compute_rouge_score(p.generated_answer, p.ground_truth)
             rouge_scores.append(score)
+            detail["rouge_l"] = score
         except Exception as e:
             log.debug(f"ROUGE failed for {p.id}: {e}")
             rouge_scores.append(float("nan"))
@@ -449,11 +465,27 @@ async def evaluate_predictions(
                     api_key="no-key",
                     check_embedding_ctx_length=False,
                 )
-            score = await compute_answer_correctness(p.question, p.generated_answer, p.ground_truth, eval_llm, eval_emb)
-            acc_scores.append(score)
+            result = await compute_answer_correctness(
+                p.question, p.generated_answer, p.ground_truth,
+                eval_llm, eval_emb, return_details=True,
+            )
+            acc_scores.append(result["score"])
+            detail["answer_correctness"] = result["score"]
+            detail["factuality"] = result["factuality"]
+            detail["similarity"] = result["similarity"]
+            detail["tp"] = result["tp"]
+            detail["fp"] = result["fp"]
+            detail["fn"] = result["fn"]
+            detail["answer_statements"] = result["answer_statements"]
+            detail["gt_statements"] = result["gt_statements"]
+            detail["classification"] = result["classification"]
+            detail["weights"] = result["weights"]
         except Exception as e:
             log.debug(f"Answer correctness failed for {p.id}: {e}")
             acc_scores.append(float("nan"))
+            detail["answer_correctness_error"] = str(e)
+
+        question_details.append(detail)
 
     def safe_mean(vals: List[float]) -> float:
         clean = [v for v in vals if not math.isnan(v)]
@@ -465,7 +497,7 @@ async def evaluate_predictions(
         rouge_l=safe_mean(rouge_scores),
         answer_correctness=safe_mean(acc_scores),
         eval_time_seconds=time.time() - t0,
-    )
+    ), question_details
 
 
 # ── Main ──
@@ -591,10 +623,15 @@ async def async_main(config: BenchmarkConfig):
             if mr.predictions:
                 log.info(f"Evaluating {model.display_name}/{ds_name}")
                 try:
-                    mr.evaluation = await evaluate_predictions(config, mr.predictions, model.display_name, ds_name)
+                    mr.evaluation, question_details = await evaluate_predictions(config, mr.predictions, model.display_name, ds_name)
                     eval_path = os.path.join(config.output_dir, "evaluations", f"{safe}__{ds_name}.json")
                     with open(eval_path, "w", encoding="utf-8") as f:
                         json.dump(asdict(mr.evaluation), f, indent=2, ensure_ascii=False)
+                    # Write per-question details
+                    details_path = os.path.join(config.output_dir, "evaluations", f"{safe}__{ds_name}_details.json")
+                    with open(details_path, "w", encoding="utf-8") as f:
+                        json.dump(question_details, f, indent=2, ensure_ascii=False)
+                    log.info(f"Details saved to {details_path}")
                 except Exception as e:
                     log.error(f"Evaluation failed: {e}")
 
