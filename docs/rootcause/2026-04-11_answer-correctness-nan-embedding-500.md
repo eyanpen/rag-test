@@ -338,3 +338,23 @@ eval_emb = OpenAIEmbeddings(
 **回答**: 已执行方案 A，在 `tests/run_embedding_benchmark.py` 的 `OpenAIEmbeddings` 初始化中加入 `check_embedding_ctx_length=False`。同时更新 RCA 报告，标记方案 A 为已采纳，补充测试验证和技术分析章节。
 
 **影响**: 修复已应用。报告更新为最终版本。
+
+---
+
+### Q6 (2026-04-11 02:44)
+**用户问题**: git comment
+
+**回答**: 分析工作区改动（1 个修改文件 + 2 个新增文件），生成 commit message 并提交。
+```
+bb92201 fix(eval): 修复 answer_correctness 全为 NaN 的问题
+```
+3 files changed, 401 insertions。
+
+**影响**: 修复代码和分析文档已入库。
+
+---
+
+### Q7 (2026-04-11 02:44)
+**用户问题**: 重新运行 Phase 10 及以后的步骤，确保 answer_correctness 有值。如果因 embedding maxtoken 限制，可保持为空。
+
+**回答**: 正在执行，见下方调试过程记录。
