@@ -67,7 +67,7 @@ def _load_document() -> str:
 
 
 def _embed(model: str, texts: list[str]) -> list[list[float]]:
-    print(f"Embedding {len(texts)} text({texts[:100]}) with {model}")
+    print(f"Embedding {len(texts)} text({texts[0][:80]}) with {model}")
     r = httpx.post(
         f"{API_BASE}/embeddings",
         json={"model": model, "input": texts},

@@ -1,0 +1,540 @@
+[
+  {
+    "query": "What is the primary function of mitochondria in eukaryotic cells?",
+    "relevant_doc": "Mitochondria are membrane-bound organelles found in the cytoplasm of eukaryotic cells. They are often referred to as the powerhouses of the cell because they generate most of the cell's supply of adenosine triphosphate (ATP), which is used as a source of chemical energy. Mitochondria accomplish this through oxidative phosphorylation, a process that couples the oxidation of nutrients to the production of ATP via the electron transport chain located in the inner mitochondrial membrane.",
+    "distractor_docs": [
+      "The Krebs cycle, also known as the citric acid cycle, is a series of chemical reactions used by all aerobic organisms to release stored energy through the oxidation of acetyl-CoA derived from carbohydrates, fats, and proteins.",
+      "Chloroplasts are organelles found in plant cells and eukaryotic algae that conduct photosynthesis. They absorb sunlight and use it along with water and carbon dioxide to produce glucose and oxygen.",
+      "The Golgi apparatus is an organelle found in most eukaryotic cells that packages proteins into membrane-bound vesicles inside the cell before the vesicles are sent to their destination.",
+      "Lysosomes are membrane-bound organelles that contain digestive enzymes capable of breaking down all kinds of biological polymers including proteins, nucleic acids, carbohydrates, and lipids.",
+      "The endoplasmic reticulum is a network of membranous tubules within the cytoplasm of a eukaryotic cell, continuous with the nuclear membrane. It usually has ribosomes attached and is involved in protein and lipid synthesis.",
+      "Ribosomes are macromolecular machines found within all living cells that perform biological protein synthesis. They link amino acids together in the order specified by the codons of messenger RNA molecules.",
+      "The cell nucleus contains most of the cell's genetic material organized as multiple long linear DNA molecules in a complex with a large variety of proteins such as histones to form chromosomes."
+    ],
+    "domain": "science",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What caused the fall of the Western Roman Empire in 476 AD?",
+    "relevant_doc": "The fall of the Western Roman Empire in 476 AD was the result of a combination of internal decay and external pressures. Internally, the empire suffered from political instability, economic decline, overreliance on mercenary armies, and administrative corruption. Externally, successive waves of Germanic tribes including the Visigoths, Vandals, and Ostrogoths invaded Roman territories. The final blow came when the Germanic chieftain Odoacer deposed the last Western Roman Emperor, Romulus Augustulus, effectively ending Western Roman rule.",
+    "distractor_docs": [
+      "The Byzantine Empire, also known as the Eastern Roman Empire, continued to exist for nearly a thousand years after the fall of the Western Roman Empire, finally falling to the Ottoman Turks in 1453 when Constantinople was conquered.",
+      "The Pax Romana was a period of approximately 200 years of relative peace and stability within the Roman Empire, lasting from the reign of Augustus (27 BC) to the death of Marcus Aurelius (180 AD).",
+      "The French Revolution of 1789 was a period of radical political and societal change in France that began with the Estates General of 1789 and ended with the formation of the French Consulate in November 1799.",
+      "The Mongol Empire was the largest contiguous land empire in history, founded by Genghis Khan in 1206. At its peak, it stretched from Eastern Europe to the Sea of Japan.",
+      "The Industrial Revolution began in Britain in the late 18th century and transformed largely agrarian societies into industrialized urban ones through the introduction of machine manufacturing.",
+      "The ancient Egyptian civilization flourished along the Nile River for over three thousand years, developing a complex society with advances in architecture, mathematics, medicine, and writing.",
+      "The Silk Road was an ancient network of trade routes connecting the East and West, facilitating the exchange of goods, ideas, and culture between the Roman Empire and China."
+    ],
+    "domain": "history",
+    "difficulty": "easy"
+  },
+  {
+    "query": "How does HTTPS protect data transmitted over the internet?",
+    "relevant_doc": "HTTPS (Hypertext Transfer Protocol Secure) protects data transmitted over the internet by using TLS (Transport Layer Security) encryption. When a user connects to an HTTPS website, the browser and server perform a TLS handshake to establish an encrypted connection. During this handshake, the server presents a digital certificate to verify its identity, and both parties agree on encryption keys. All subsequent data exchanged between the browser and server is encrypted, preventing eavesdroppers from reading the content. HTTPS also provides data integrity, ensuring that transmitted data cannot be modified without detection.",
+    "distractor_docs": [
+      "A virtual private network (VPN) creates a secure, encrypted tunnel between a user's device and a remote server, masking the user's IP address and encrypting all internet traffic passing through the tunnel.",
+      "DNS (Domain Name System) is a hierarchical naming system that translates human-readable domain names like www.example.com into numerical IP addresses that computers use to identify each other on the network.",
+      "TCP/IP is the fundamental communication protocol suite of the internet. TCP handles reliable data delivery by breaking messages into packets and reassembling them, while IP handles addressing and routing.",
+      "A firewall is a network security system that monitors and controls incoming and outgoing network traffic based on predetermined security rules, establishing a barrier between trusted internal networks and untrusted external networks.",
+      "Blockchain technology is a decentralized, distributed ledger that records transactions across many computers so that any involved record cannot be altered retroactively without the alteration of all subsequent blocks.",
+      "Cloud computing delivers computing services including servers, storage, databases, networking, software, and analytics over the internet to offer faster innovation, flexible resources, and economies of scale.",
+      "The Internet of Things (IoT) refers to the network of physical devices, vehicles, appliances, and other objects embedded with sensors, software, and connectivity that enables them to collect and exchange data."
+    ],
+    "domain": "technology",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What is the mechanism of action of penicillin antibiotics?",
+    "relevant_doc": "Penicillin antibiotics work by inhibiting the synthesis of bacterial cell walls. Specifically, penicillin binds to and inactivates transpeptidase enzymes (also called penicillin-binding proteins or PBPs) that are essential for cross-linking peptidoglycan chains in the bacterial cell wall. Without proper cross-linking, the cell wall becomes structurally weak. As the bacterium grows and divides, the weakened cell wall cannot withstand osmotic pressure, leading to cell lysis and death. Penicillin is most effective against actively growing bacteria because cell wall synthesis is most active during growth and division.",
+    "distractor_docs": [
+      "Vaccines work by stimulating the immune system to produce antibodies against specific pathogens without causing the disease itself. They contain weakened or inactivated forms of the pathogen, or parts of the pathogen such as proteins or sugars.",
+      "Insulin is a peptide hormone produced by beta cells of the pancreatic islets of Langerhans. It regulates the metabolism of carbohydrates, fats, and protein by promoting the absorption of glucose from the blood into liver, fat, and skeletal muscle cells.",
+      "Aspirin (acetylsalicylic acid) works by irreversibly inhibiting the enzyme cyclooxygenase (COX), which is required for the synthesis of prostaglandins and thromboxanes. This reduces inflammation, pain, and fever.",
+      "MRI (Magnetic Resonance Imaging) uses strong magnetic fields and radio waves to generate detailed images of organs and tissues inside the body. It is particularly useful for imaging soft tissues such as the brain and spinal cord.",
+      "Blood pressure is the force exerted by circulating blood against the walls of blood vessels. It is measured in millimeters of mercury (mmHg) and expressed as systolic pressure over diastolic pressure.",
+      "The human genome contains approximately 3 billion base pairs of DNA organized into 23 pairs of chromosomes. It encodes roughly 20,000 to 25,000 protein-coding genes.",
+      "Photosynthesis is the process by which green plants and certain other organisms transform light energy into chemical energy, using carbon dioxide and water to produce glucose and oxygen."
+    ],
+    "domain": "medicine",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What is the legal doctrine of habeas corpus?",
+    "relevant_doc": "Habeas corpus is a fundamental legal principle that protects individuals against unlawful and indefinite imprisonment. The term is Latin for 'you shall have the body.' Under this doctrine, a person who is detained or imprisoned can petition a court to order the custodian (usually a prison official) to bring the prisoner before the court so that the legality of the detention can be examined. If the court finds that the detention is unlawful, it can order the prisoner's release. Habeas corpus is considered one of the most important safeguards of individual freedom against arbitrary state action.",
+    "distractor_docs": [
+      "The theory of social contract, as articulated by philosophers such as Thomas Hobbes, John Locke, and Jean-Jacques Rousseau, posits that individuals consent to surrender some freedoms to a governing authority in exchange for protection of their remaining rights.",
+      "Supply and demand is a fundamental economic model that describes the relationship between the availability of a product and the desire for that product. When supply exceeds demand, prices tend to fall; when demand exceeds supply, prices tend to rise.",
+      "The Pythagorean theorem states that in a right-angled triangle, the square of the length of the hypotenuse equals the sum of the squares of the lengths of the other two sides, expressed as a² + b² = c².",
+      "Plate tectonics is the scientific theory that Earth's lithosphere is divided into several large and small plates that float on the semi-fluid asthenosphere beneath them, causing earthquakes, volcanic activity, and mountain formation.",
+      "The water cycle describes the continuous movement of water within the Earth and atmosphere through processes including evaporation, transpiration, condensation, precipitation, and runoff.",
+      "Quantum mechanics is a fundamental theory in physics that describes the physical properties of nature at the scale of atoms and subatomic particles, where classical mechanics no longer provides accurate predictions.",
+      "Natural selection is the process through which populations of living organisms adapt and change over generations, as individuals with favorable traits are more likely to survive and reproduce."
+    ],
+    "domain": "law",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What is the role of central banks in managing inflation?",
+    "relevant_doc": "Central banks manage inflation primarily through monetary policy tools. The most common tool is adjusting the benchmark interest rate: raising rates makes borrowing more expensive, which reduces spending and investment, thereby cooling demand and lowering inflationary pressure. Conversely, lowering rates stimulates economic activity. Central banks also use open market operations, buying or selling government securities to influence the money supply. Additionally, they set reserve requirements for commercial banks and may use forward guidance to shape market expectations about future policy. Most modern central banks target an inflation rate of around 2 percent per year.",
+    "distractor_docs": [
+      "The stock market is a collection of exchanges where shares of publicly held companies are issued, bought, and sold. Major stock exchanges include the New York Stock Exchange, NASDAQ, and the London Stock Exchange.",
+      "Gross domestic product (GDP) is the total monetary value of all finished goods and services produced within a country's borders in a specific time period, serving as a broad measure of overall domestic production.",
+      "International trade involves the exchange of goods and services between countries. Comparative advantage theory suggests that countries benefit from specializing in producing goods where they have the lowest opportunity cost.",
+      "The Great Depression was a severe worldwide economic downturn that began in 1929 and lasted until the late 1930s. It was the longest, deepest, and most widespread depression of the 20th century.",
+      "Cryptocurrency is a digital or virtual currency that uses cryptography for security and operates on decentralized networks based on blockchain technology, independent of any central authority.",
+      "The theory of evolution by natural selection, proposed by Charles Darwin, explains how species change over time through the differential survival and reproduction of individuals with favorable inherited traits.",
+      "Photovoltaic cells convert sunlight directly into electricity using semiconductor materials. When photons strike the cell, they knock electrons free from atoms, generating a flow of electricity."
+    ],
+    "domain": "economics",
+    "difficulty": "easy"
+  },
+  {
+    "query": "How does CRISPR-Cas9 gene editing technology work?",
+    "relevant_doc": "CRISPR-Cas9 is a revolutionary gene editing technology that allows scientists to precisely modify DNA sequences in living organisms. The system uses a guide RNA (gRNA) that is designed to match a specific target DNA sequence. The gRNA directs the Cas9 protein, which acts as molecular scissors, to the exact location in the genome. Once there, Cas9 creates a double-strand break in the DNA. The cell's natural repair mechanisms then kick in: either non-homologous end joining (NHEJ), which can disrupt a gene, or homology-directed repair (HDR), which can insert a new sequence using a provided DNA template.",
+    "distractor_docs": [
+      "Polymerase chain reaction (PCR) is a laboratory technique used to amplify specific segments of DNA. It involves repeated cycles of heating and cooling to denature DNA, anneal primers, and extend new DNA strands using DNA polymerase.",
+      "Gel electrophoresis is a method for separating DNA, RNA, or protein molecules based on their size and charge by applying an electric field to move them through a gel matrix.",
+      "Stem cells are undifferentiated cells that have the ability to develop into many different cell types in the body. They serve as an internal repair system, dividing essentially without limit to replenish other cells.",
+      "Epigenetics is the study of heritable changes in gene expression that do not involve changes to the underlying DNA sequence. These changes can be caused by DNA methylation, histone modification, and non-coding RNA molecules.",
+      "Recombinant DNA technology involves combining DNA molecules from different sources into one molecule to create a new set of genes. This technology is widely used in biotechnology for producing proteins, vaccines, and genetically modified organisms.",
+      "RNA interference (RNAi) is a biological process in which RNA molecules inhibit gene expression by neutralizing targeted mRNA molecules. It was discovered in 1998 and has become an important tool for studying gene function.",
+      "Next-generation sequencing (NGS) technologies enable rapid sequencing of entire genomes by massively parallel processing, reading millions of DNA fragments simultaneously and then computationally assembling them.",
+      "Protein folding is the physical process by which a protein chain acquires its native three-dimensional structure, a conformation that is usually biologically functional. Misfolded proteins are associated with diseases like Alzheimer's."
+    ],
+    "domain": "science",
+    "difficulty": "medium"
+  },
+  {
+    "query": "What were the main causes of World War I?",
+    "relevant_doc": "World War I was triggered by a complex web of factors that had been building for decades. The main causes include: militarism, as European powers engaged in an arms race and expanded their military forces; a system of entangling alliances that divided Europe into two opposing camps (the Triple Alliance and the Triple Entente); imperialism, as nations competed for colonies and global influence; and nationalism, which fueled ethnic tensions particularly in the Balkans. The immediate trigger was the assassination of Archduke Franz Ferdinand of Austria-Hungary by a Serbian nationalist in Sarajevo on June 28, 1914, which set off a chain reaction of alliance obligations.",
+    "distractor_docs": [
+      "The Treaty of Versailles, signed in 1919, imposed harsh penalties on Germany including territorial losses, military restrictions, and massive reparations payments. Many historians argue these conditions contributed to the rise of Nazi Germany.",
+      "The Congress of Vienna in 1814-1815 was a conference of ambassadors of European states that aimed to restore order and redraw the political map of Europe after the defeat of Napoleon Bonaparte.",
+      "The Crimean War (1853-1856) was fought between Russia and an alliance of France, Britain, the Ottoman Empire, and Sardinia. It is notable for being one of the first wars to be extensively documented by photographers and war correspondents.",
+      "The Franco-Prussian War of 1870-1871 resulted in the unification of Germany under Prussian leadership and the establishment of the German Empire. France's defeat led to the loss of Alsace-Lorraine and significant reparations.",
+      "The Boer Wars (1880-1881 and 1899-1902) were fought between the British Empire and the two Boer republics in South Africa. The second war saw the British use concentration camps, causing widespread civilian deaths.",
+      "The Russo-Japanese War of 1904-1905 was the first major military victory of an Asian power over a European one in modern times. Japan's victory established it as a major world power.",
+      "The Berlin Conference of 1884-1885 regulated European colonization and trade in Africa during the New Imperialism period. It formalized the Scramble for Africa, dividing the continent among European powers.",
+      "The Boxer Rebellion of 1899-1901 was an anti-foreign, anti-colonial uprising in China by the Society of Righteous and Harmonious Fists. An eight-nation alliance intervened to suppress the rebellion."
+    ],
+    "domain": "history",
+    "difficulty": "medium"
+  },
+  {
+    "query": "How do convolutional neural networks process images?",
+    "relevant_doc": "Convolutional neural networks (CNNs) process images through a series of specialized layers. The convolutional layers apply learnable filters (kernels) that slide across the input image, computing dot products to produce feature maps that detect patterns like edges, textures, and shapes. Pooling layers (typically max pooling) reduce the spatial dimensions of feature maps, providing translation invariance and reducing computational cost. As data passes through successive convolutional and pooling layers, the network learns increasingly abstract features — from simple edges in early layers to complex object parts in deeper layers. Finally, fully connected layers combine these features for classification or other tasks.",
+    "distractor_docs": [
+      "Recurrent neural networks (RNNs) are a class of neural networks designed for sequential data processing. They maintain a hidden state that captures information about previous elements in the sequence, making them suitable for tasks like language modeling and time series prediction.",
+      "Generative adversarial networks (GANs) consist of two neural networks — a generator and a discriminator — that are trained simultaneously in a competitive process. The generator creates synthetic data while the discriminator tries to distinguish real from generated data.",
+      "Transformer models use self-attention mechanisms to process input sequences in parallel rather than sequentially. The attention mechanism computes weighted relationships between all positions in a sequence, enabling the model to capture long-range dependencies efficiently.",
+      "Reinforcement learning is a type of machine learning where an agent learns to make decisions by performing actions in an environment and receiving rewards or penalties. The agent aims to maximize cumulative reward over time.",
+      "Natural language processing (NLP) is a subfield of artificial intelligence that focuses on the interaction between computers and human language, enabling machines to read, understand, and generate text.",
+      "Support vector machines (SVMs) are supervised learning models that find the optimal hyperplane to separate data points of different classes with the maximum margin. They can handle non-linear classification using kernel functions.",
+      "Random forests are ensemble learning methods that construct multiple decision trees during training and output the mode of the classes (classification) or mean prediction (regression) of the individual trees.",
+      "Gradient descent is an optimization algorithm used to minimize the loss function in machine learning models by iteratively adjusting parameters in the direction of steepest descent of the loss surface."
+    ],
+    "domain": "technology",
+    "difficulty": "medium"
+  },
+  {
+    "query": "How does the human immune system respond to a viral infection?",
+    "relevant_doc": "When a virus enters the body, the immune system mounts a multi-layered defense. The innate immune response activates first: infected cells release interferons that warn neighboring cells, natural killer cells destroy infected cells, and macrophages engulf viral particles. If the virus persists, the adaptive immune response engages within days. Dendritic cells present viral antigens to T cells in lymph nodes. Helper T cells coordinate the response by activating cytotoxic T cells, which directly kill infected cells, and B cells, which produce antibodies specific to the virus. These antibodies neutralize free viral particles and mark infected cells for destruction. Memory B and T cells persist long after infection, providing faster responses upon reinfection.",
+    "distractor_docs": [
+      "Autoimmune diseases occur when the immune system mistakenly attacks the body's own healthy cells and tissues. Examples include rheumatoid arthritis, lupus, and type 1 diabetes. Treatment often involves immunosuppressive medications.",
+      "Allergic reactions occur when the immune system overreacts to normally harmless substances called allergens. Mast cells release histamine and other chemicals, causing symptoms ranging from mild itching to life-threatening anaphylaxis.",
+      "The lymphatic system is a network of tissues, organs, and vessels that helps maintain fluid balance and plays a crucial role in immune function. Lymph nodes filter lymph fluid and house immune cells that monitor for pathogens.",
+      "Blood types are determined by the presence or absence of certain antigens on the surface of red blood cells. The ABO system classifies blood into four types: A, B, AB, and O, based on which antigens are present.",
+      "The human digestive system breaks down food into nutrients through mechanical and chemical processes. It includes the mouth, esophagus, stomach, small intestine, large intestine, and accessory organs like the liver and pancreas.",
+      "Organ transplantation involves surgically removing an organ from one person (the donor) and placing it into another person (the recipient). The major challenge is immune rejection, which requires lifelong immunosuppressive therapy.",
+      "The endocrine system consists of glands that produce hormones regulating metabolism, growth, development, tissue function, sexual function, reproduction, sleep, and mood. Major glands include the pituitary, thyroid, and adrenal glands.",
+      "Stem cell therapy involves using stem cells to treat or prevent diseases. Hematopoietic stem cell transplantation is the most established form, commonly used to treat blood cancers like leukemia and lymphoma."
+    ],
+    "domain": "medicine",
+    "difficulty": "medium"
+  },
+  {
+    "query": "What is the legal principle of stare decisis in common law systems?",
+    "relevant_doc": "Stare decisis is a legal doctrine in common law systems that obligates courts to follow the precedents established by prior decisions when ruling on similar cases. The Latin phrase means 'to stand by things decided.' Under this principle, lower courts must follow the rulings of higher courts within the same jurisdiction, creating a hierarchical system of binding precedent. The doctrine promotes legal consistency, predictability, and fairness by ensuring that similar cases are treated similarly. However, courts can distinguish cases on their facts or, in rare circumstances, higher courts may overturn their own precedents when they are deemed clearly erroneous or when societal conditions have fundamentally changed.",
+    "distractor_docs": [
+      "The doctrine of separation of powers divides government into three branches — legislative, executive, and judicial — each with distinct powers and responsibilities, designed to prevent any single branch from exercising unchecked authority.",
+      "Judicial review is the power of courts to examine the actions of the legislative and executive branches and determine whether they are consistent with the constitution. This power was established in the United States by Marbury v. Madison (1803).",
+      "The rule of law is a principle that all persons, institutions, and entities are accountable to laws that are publicly promulgated, equally enforced, and independently adjudicated, consistent with international human rights principles.",
+      "Due process is a legal requirement that the state must respect all legal rights owed to a person. It includes both procedural due process (fair procedures) and substantive due process (protection of fundamental rights).",
+      "The adversarial system is a legal system used in common law countries where two advocates represent their parties' cases before an impartial judge or jury, who then renders a decision based on the evidence and arguments presented.",
+      "Tort law is a body of law that addresses civil wrongs not arising from contractual obligations. A person who commits a tortious act is called a tortfeasor and may be held liable for damages to the injured party.",
+      "Constitutional law deals with the fundamental principles by which a government exercises its authority. It defines the structure of government, the powers of different branches, and the rights of citizens.",
+      "International law governs relations between sovereign states and other international actors. It includes treaties, customary international law, and general principles recognized by civilized nations."
+    ],
+    "domain": "law",
+    "difficulty": "medium"
+  },
+  {
+    "query": "How does quantitative easing work as a monetary policy tool?",
+    "relevant_doc": "Quantitative easing (QE) is an unconventional monetary policy tool used by central banks when traditional interest rate cuts are insufficient, typically when rates are near zero. In QE, the central bank creates new electronic money and uses it to purchase financial assets, primarily government bonds, from commercial banks and other financial institutions. This increases the money supply and the reserves held by banks, which lowers long-term interest rates and encourages lending and investment. QE also raises asset prices, creating a wealth effect that can stimulate consumer spending. The goal is to boost economic activity and prevent deflation during severe economic downturns.",
+    "distractor_docs": [
+      "Fiscal policy refers to the use of government spending and taxation to influence the economy. Expansionary fiscal policy involves increasing government spending or cutting taxes to stimulate economic growth during recessions.",
+      "The Phillips curve describes an inverse relationship between the rate of unemployment and the rate of inflation in an economy. As unemployment decreases, inflation tends to increase, and vice versa.",
+      "Supply-side economics is a macroeconomic theory that argues economic growth can be most effectively fostered by lowering taxes, decreasing regulation, and allowing free trade, thereby increasing the supply of goods and services.",
+      "The efficient market hypothesis states that asset prices fully reflect all available information, making it impossible to consistently achieve returns exceeding average market returns on a risk-adjusted basis.",
+      "A trade deficit occurs when a country's imports exceed its exports. While often viewed negatively, trade deficits can also indicate strong domestic demand and consumer purchasing power.",
+      "The Laffer curve illustrates the theoretical relationship between tax rates and tax revenue. It suggests that there is an optimal tax rate that maximizes revenue, and that rates above this point actually decrease revenue.",
+      "Microeconomics studies the behavior of individuals and firms in making decisions regarding the allocation of scarce resources and the interactions among these individuals and firms in markets.",
+      "The gold standard was a monetary system in which the standard economic unit of account is based on a fixed quantity of gold. Countries on the gold standard agreed to convert paper money into a fixed amount of gold."
+    ],
+    "domain": "economics",
+    "difficulty": "medium"
+  },
+  {
+    "query": "What distinguishes type I from type II supernovae in terms of their progenitor stars and explosion mechanisms?",
+    "relevant_doc": "Type I and Type II supernovae differ fundamentally in their progenitor stars and explosion mechanisms. Type II supernovae originate from massive stars (greater than 8 solar masses) that have retained their hydrogen envelopes. When the iron core of such a star can no longer sustain fusion, it collapses under gravity, triggering a rebound shock wave that expels the outer layers. Type I supernovae, by contrast, lack hydrogen lines in their spectra. Type Ia supernovae occur in binary systems where a white dwarf accretes matter from a companion star until it reaches the Chandrasekhar limit (about 1.4 solar masses), triggering a thermonuclear explosion that completely destroys the star. Type Ib and Ic supernovae are core-collapse events from massive stars that lost their hydrogen (Ib) or both hydrogen and helium (Ic) envelopes before exploding.",
+    "distractor_docs": [
+      "Neutron stars are the collapsed remnants of massive stars that have undergone supernova explosions. They are incredibly dense, with a mass of about 1.4 solar masses compressed into a sphere roughly 20 kilometers in diameter. Their rapid rotation and strong magnetic fields produce beams of electromagnetic radiation observed as pulsars.",
+      "Black holes form when the most massive stars collapse at the end of their lives, creating a region of spacetime where gravity is so strong that nothing, not even light, can escape. The boundary of this region is called the event horizon, and the singularity at the center represents a point of theoretically infinite density.",
+      "Stellar nucleosynthesis is the process by which elements are created within stars through nuclear fusion reactions. Hydrogen fuses into helium in the core, and in more massive stars, successive fusion stages produce carbon, oxygen, silicon, and eventually iron, which cannot release energy through further fusion.",
+      "The Hertzsprung-Russell diagram plots stars according to their luminosity and surface temperature. Main sequence stars, including our Sun, form a diagonal band where hydrogen fusion occurs. Red giants, white dwarfs, and supergiants occupy distinct regions reflecting different evolutionary stages.",
+      "Gamma-ray bursts are the most energetic electromagnetic events observed in the universe. Long-duration bursts (lasting more than 2 seconds) are associated with the collapse of massive stars, while short-duration bursts are thought to result from the merger of compact objects like neutron stars.",
+      "White dwarfs are the remnant cores of low to intermediate mass stars that have exhausted their nuclear fuel. They are supported against gravitational collapse by electron degeneracy pressure and slowly cool over billions of years, eventually becoming cold, dark objects called black dwarfs.",
+      "The Chandrasekhar limit of approximately 1.4 solar masses is the maximum mass of a stable white dwarf star. Above this limit, electron degeneracy pressure cannot support the star against gravitational collapse, leading to either a neutron star or a Type Ia supernova depending on the circumstances.",
+      "Supernova remnants are the expanding shells of gas and dust left behind after a supernova explosion. They can persist for thousands of years, sweeping up interstellar material and accelerating cosmic rays. Famous examples include the Crab Nebula (from a supernova observed in 1054 AD) and Cassiopeia A.",
+      "Wolf-Rayet stars are massive, evolved stars that have lost their outer hydrogen envelopes through powerful stellar winds. They are extremely hot and luminous, with surface temperatures exceeding 30,000 K, and are thought to be the progenitors of Type Ib and Ic supernovae."
+    ],
+    "domain": "science",
+    "difficulty": "hard"
+  },
+  {
+    "query": "How did the Treaty of Westphalia in 1648 reshape the concept of state sovereignty in Europe?",
+    "relevant_doc": "The Treaty of Westphalia, signed in 1648 to end the Thirty Years' War, fundamentally reshaped European political order by establishing the principle of state sovereignty. The treaty recognized the right of each state to govern its own territory without external interference, particularly in matters of religion. It effectively ended the medieval idea that the Holy Roman Emperor or the Pope held supreme authority over European states. Each signatory was recognized as having exclusive sovereignty within its borders, establishing the principle of non-intervention. This Westphalian system became the foundation of modern international relations, creating a framework of coexisting sovereign states that persists to this day.",
+    "distractor_docs": [
+      "The Peace of Augsburg in 1555 established the principle of cuius regio, eius religio, allowing each prince within the Holy Roman Empire to determine the religion of his own state. However, it only recognized Catholicism and Lutheranism, excluding Calvinism and other Protestant denominations.",
+      "The Thirty Years' War (1618-1648) devastated Central Europe, killing an estimated 8 million people. What began as a religious conflict between Protestant and Catholic states within the Holy Roman Empire evolved into a broader political struggle involving most European powers.",
+      "The Congress of Vienna in 1814-1815 sought to restore the European balance of power after the Napoleonic Wars. Led by Austrian diplomat Klemens von Metternich, it redrew national boundaries and established a concert of great powers to maintain stability.",
+      "The Treaty of Utrecht in 1713 ended the War of the Spanish Succession and established a new balance of power in Europe. It recognized Philip V as King of Spain on the condition that the French and Spanish crowns would never be united.",
+      "The Edict of Nantes, issued by Henry IV of France in 1598, granted substantial rights and freedoms to the Huguenots (French Protestants), effectively ending the French Wars of Religion. It was revoked by Louis XIV in 1685 with the Edict of Fontainebleau.",
+      "The Holy Roman Empire was a multi-ethnic complex of territories in Western and Central Europe that developed during the Early Middle Ages and continued until its dissolution in 1806. Despite its name, Voltaire famously remarked that it was neither holy, nor Roman, nor an empire.",
+      "The Treaty of Tordesillas in 1494 divided the newly discovered lands outside Europe between the Portuguese Empire and the Spanish Empire along a meridian 370 leagues west of the Cape Verde islands, with exclusive rights to the lands on each side.",
+      "The Peace of Lodi in 1454 established a balance of power among the major Italian states — Milan, Naples, Florence, Venice, and the Papal States — creating a period of relative stability on the Italian peninsula that lasted until the French invasion of 1494.",
+      "Hugo Grotius, often called the father of international law, published De Jure Belli ac Pacis (On the Law of War and Peace) in 1625. He argued that natural law prescribed rules of conduct for nations as well as individuals, laying groundwork for the modern law of nations."
+    ],
+    "domain": "history",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What are the key differences between symmetric and asymmetric encryption algorithms?",
+    "relevant_doc": "Symmetric encryption uses a single shared secret key for both encryption and decryption. Algorithms like AES and ChaCha20 are fast and efficient for encrypting large volumes of data, but require a secure method to distribute the shared key to all parties. Asymmetric encryption uses a mathematically related key pair: a public key for encryption and a private key for decryption. Algorithms like RSA and Elliptic Curve Cryptography (ECC) solve the key distribution problem since the public key can be freely shared, but they are computationally much slower than symmetric algorithms. In practice, hybrid systems like TLS use asymmetric encryption to securely exchange a symmetric session key, then use symmetric encryption for the actual data transfer.",
+    "distractor_docs": [
+      "Hash functions like SHA-256 and SHA-3 produce a fixed-size digest from arbitrary input data. They are one-way functions designed so that it is computationally infeasible to reverse the hash or find two different inputs that produce the same output (collision resistance).",
+      "Digital signatures use asymmetric cryptography to verify the authenticity and integrity of a message. The sender signs the message with their private key, and anyone can verify the signature using the sender's public key, confirming both the sender's identity and that the message was not altered.",
+      "Key derivation functions (KDFs) like PBKDF2, bcrypt, and Argon2 are designed to derive cryptographic keys from passwords. They intentionally use computational resources (time, memory) to make brute-force attacks impractical.",
+      "Homomorphic encryption allows computations to be performed on encrypted data without decrypting it first. The result, when decrypted, matches the result of operations performed on the plaintext, enabling privacy-preserving computation in cloud environments.",
+      "Zero-knowledge proofs are cryptographic protocols that allow one party to prove to another that a statement is true without revealing any information beyond the validity of the statement itself. They are used in blockchain privacy and authentication systems.",
+      "The Diffie-Hellman key exchange protocol allows two parties to establish a shared secret over an insecure channel without prior shared secrets. It relies on the computational difficulty of the discrete logarithm problem in finite fields.",
+      "Post-quantum cryptography refers to cryptographic algorithms that are believed to be secure against attacks by quantum computers. Lattice-based, hash-based, and code-based cryptographic schemes are leading candidates for post-quantum standards.",
+      "Transport Layer Security (TLS) 1.3 simplified the handshake protocol to require only one round trip, removed support for older cipher suites like RC4 and 3DES, and mandated forward secrecy through ephemeral Diffie-Hellman key exchange.",
+      "Block ciphers like AES operate on fixed-size blocks of data (128 bits for AES) and require modes of operation such as CBC, CTR, or GCM to encrypt data larger than one block. GCM mode additionally provides authenticated encryption with associated data (AEAD)."
+    ],
+    "domain": "technology",
+    "difficulty": "hard"
+  },
+  {
+    "query": "How do monoclonal antibodies differ from polyclonal antibodies in therapeutic applications?",
+    "relevant_doc": "Monoclonal antibodies are produced from a single B cell clone and therefore recognize only one specific epitope on an antigen, providing high specificity and consistency between batches. They are manufactured using hybridoma technology or recombinant methods. Polyclonal antibodies are derived from multiple B cell clones and recognize multiple epitopes on the same antigen, providing broader but less specific binding. In therapeutic applications, monoclonal antibodies offer precise targeting — for example, trastuzumab targets HER2 in breast cancer, and adalimumab targets TNF-alpha in autoimmune diseases. Polyclonal antibodies, such as anti-thymocyte globulin, are used when broader immune modulation is needed, like preventing organ transplant rejection. Monoclonal antibodies are more expensive to produce but offer reproducibility and defined mechanisms of action.",
+    "distractor_docs": [
+      "Chimeric antigen receptor (CAR) T-cell therapy involves genetically modifying a patient's T cells to express a synthetic receptor that recognizes a specific antigen on cancer cells. The modified T cells are expanded in the laboratory and infused back into the patient to target and destroy cancer cells.",
+      "Immune checkpoint inhibitors are a class of drugs that block proteins like PD-1, PD-L1, and CTLA-4 that normally restrain T cell activity. By releasing these brakes on the immune system, checkpoint inhibitors enable T cells to more effectively attack cancer cells.",
+      "Bispecific antibodies are engineered antibody constructs that can simultaneously bind two different antigens or epitopes. They can redirect immune cells to tumor cells, with blinatumomab being an example that bridges T cells to CD19-positive B cell malignancies.",
+      "Antibody-drug conjugates (ADCs) combine the targeting specificity of monoclonal antibodies with the cytotoxic potency of chemotherapy drugs. The antibody delivers the drug payload directly to cancer cells, reducing systemic toxicity compared to conventional chemotherapy.",
+      "Intravenous immunoglobulin (IVIG) therapy involves administering pooled IgG antibodies from thousands of donors to treat immune deficiencies, autoimmune diseases, and inflammatory conditions. The mechanism of action includes Fc receptor blockade, complement modulation, and anti-idiotypic effects.",
+      "Fc engineering of therapeutic antibodies involves modifying the Fc region to enhance or reduce effector functions such as antibody-dependent cellular cytotoxicity (ADCC), complement-dependent cytotoxicity (CDC), or half-life extension through increased FcRn binding.",
+      "Nanobodies, also called single-domain antibodies, are derived from the heavy-chain-only antibodies found in camelids. Their small size (approximately 15 kDa) allows them to access epitopes that conventional antibodies cannot reach, and they can be easily produced in microbial systems.",
+      "Antibody humanization is the process of modifying non-human antibodies to make them more similar to human antibodies, reducing immunogenicity when used as therapeutics. Techniques include CDR grafting, where the complementarity-determining regions from a mouse antibody are transplanted onto a human antibody framework."
+    ],
+    "domain": "medicine",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What is the difference between strict liability and negligence in tort law?",
+    "relevant_doc": "Strict liability and negligence are two distinct bases for liability in tort law. Under negligence, a plaintiff must prove that the defendant owed a duty of care, breached that duty by failing to act as a reasonable person would, and that this breach caused the plaintiff's injury. The focus is on the defendant's conduct and whether it fell below the standard of care. Under strict liability, the defendant is held liable regardless of fault or intent — the plaintiff need only prove that the defendant's activity or product caused the injury. Strict liability typically applies to abnormally dangerous activities (like blasting or keeping wild animals) and defective products under product liability law. The policy rationale is that those who engage in inherently risky activities or place defective products into commerce should bear the cost of resulting injuries.",
+    "distractor_docs": [
+      "Contributory negligence is a common law defense that completely bars a plaintiff from recovering damages if the plaintiff's own negligence contributed to the injury in any degree. Most jurisdictions have replaced it with comparative negligence, which reduces damages proportionally to the plaintiff's fault.",
+      "Vicarious liability holds one party responsible for the actions of another, most commonly in the employer-employee relationship under the doctrine of respondeat superior. An employer can be held liable for torts committed by employees acting within the scope of their employment.",
+      "The doctrine of res ipsa loquitur ('the thing speaks for itself') allows a plaintiff to establish a presumption of negligence when the accident is of a type that ordinarily does not occur without negligence, the instrumentality was in the defendant's exclusive control, and the plaintiff did not contribute to the injury.",
+      "Intentional torts require proof that the defendant acted with purpose or knowledge that their conduct would cause harm. Examples include assault, battery, false imprisonment, intentional infliction of emotional distress, and trespass. Unlike negligence, intent rather than carelessness is the basis of liability.",
+      "Proximate cause, also called legal cause, limits liability to consequences that are reasonably foreseeable from the defendant's negligent act. Even if the defendant's conduct was the actual cause of injury, liability may be cut off if the harm was too remote or unforeseeable.",
+      "Joint and several liability holds each defendant independently liable for the full amount of damages, regardless of their individual share of fault. This allows a plaintiff to recover the entire judgment from any single defendant, who may then seek contribution from other responsible parties.",
+      "The economic loss rule generally prevents recovery in tort for purely economic losses that are not accompanied by physical injury or property damage. This doctrine maintains the boundary between tort law and contract law, directing parties to seek contractual remedies for economic harms.",
+      "Assumption of risk is a defense in tort law where the defendant argues that the plaintiff voluntarily and knowingly assumed the risks inherent in a particular activity. It can be express (through a written waiver) or implied (through the plaintiff's conduct in engaging in a known dangerous activity).",
+      "Punitive damages are awarded in tort cases not to compensate the plaintiff but to punish the defendant for particularly egregious conduct and to deter similar behavior. They are typically available only when the defendant acted with malice, fraud, or reckless disregard for the rights of others."
+    ],
+    "domain": "law",
+    "difficulty": "hard"
+  },
+  {
+    "query": "How does the yield curve inversion predict economic recessions?",
+    "relevant_doc": "A yield curve inversion occurs when short-term government bond yields exceed long-term yields, reversing the normal upward-sloping yield curve. This phenomenon has preceded every U.S. recession since the 1960s, making it one of the most reliable recession indicators. The inversion reflects market expectations that future interest rates will fall, which typically happens when the central bank cuts rates in response to economic weakness. When investors expect a downturn, they rush to buy long-term bonds for safety, driving up prices and pushing down long-term yields. Meanwhile, short-term yields remain elevated due to current tight monetary policy. The most closely watched spread is between the 10-year and 2-year Treasury yields. An inversion signals that the bond market expects economic contraction, reduced corporate earnings, and eventual monetary easing.",
+    "distractor_docs": [
+      "The term premium is the additional yield investors demand for holding longer-term bonds instead of rolling over shorter-term bonds. It compensates for risks including inflation uncertainty, interest rate risk, and liquidity risk. A declining term premium can flatten the yield curve without necessarily signaling recession.",
+      "The Federal Reserve's federal funds rate is the interest rate at which depository institutions lend reserve balances to other depository institutions overnight. Changes in this rate influence the entire yield curve, with short-term rates responding most directly and long-term rates reflecting expectations of future policy.",
+      "Credit spreads measure the difference in yield between corporate bonds and risk-free government bonds of similar maturity. Widening credit spreads indicate increased perceived risk of corporate default and often accompany economic downturns and financial stress.",
+      "The Taylor rule is a monetary policy guideline that suggests how central banks should adjust interest rates in response to changes in inflation and economic output. It prescribes higher rates when inflation exceeds the target and lower rates when output falls below potential.",
+      "Quantitative tightening is the process by which a central bank reduces its balance sheet by allowing bonds to mature without reinvesting the proceeds or by actively selling securities. This removes liquidity from the financial system and can put upward pressure on interest rates.",
+      "The expectations hypothesis of the term structure posits that long-term interest rates are determined by the market's expectations of future short-term rates. Under this theory, a flat or inverted yield curve implies that the market expects short-term rates to decline in the future.",
+      "Duration is a measure of a bond's sensitivity to changes in interest rates, expressed in years. A bond with higher duration will experience larger price changes for a given change in yield. Long-term bonds have higher duration and therefore greater interest rate risk.",
+      "The Phillips curve suggests an inverse relationship between unemployment and inflation. In the context of monetary policy, central banks may tolerate higher inflation to reduce unemployment, or accept higher unemployment to control inflation, creating a policy trade-off."
+    ],
+    "domain": "economics",
+    "difficulty": "hard"
+  },
+  {
+    "query": "How does the renin-angiotensin-aldosterone system regulate blood pressure?",
+    "relevant_doc": "The renin-angiotensin-aldosterone system (RAAS) is a hormonal cascade that regulates blood pressure and fluid balance. When blood pressure drops or sodium levels fall, the juxtaglomerular cells in the kidneys release renin, an enzyme that converts angiotensinogen (produced by the liver) into angiotensin I. Angiotensin-converting enzyme (ACE), primarily in the lungs, then converts angiotensin I into angiotensin II. Angiotensin II is a potent vasoconstrictor that raises blood pressure by narrowing blood vessels. It also stimulates the adrenal cortex to release aldosterone, which promotes sodium and water reabsorption in the kidneys, increasing blood volume and further raising blood pressure. Additionally, angiotensin II stimulates the release of antidiuretic hormone (ADH) from the pituitary gland, enhancing water retention.",
+    "distractor_docs": [
+      "The baroreceptor reflex is a rapid neural mechanism for blood pressure regulation. Baroreceptors in the carotid sinus and aortic arch detect changes in arterial wall stretch. When blood pressure rises, increased firing of baroreceptors triggers parasympathetic activation and sympathetic inhibition, reducing heart rate and vasodilation.",
+      "Atrial natriuretic peptide (ANP) is released by cardiac atrial cells in response to atrial stretch caused by increased blood volume. ANP promotes sodium excretion and vasodilation, reducing blood volume and blood pressure, acting as a counterbalance to the RAAS.",
+      "Nitric oxide (NO) is a gaseous signaling molecule produced by endothelial cells that causes smooth muscle relaxation and vasodilation. It plays a critical role in maintaining vascular tone and blood pressure. Impaired NO production is associated with hypertension and atherosclerosis.",
+      "The sympathetic nervous system regulates blood pressure through the release of norepinephrine and epinephrine. These catecholamines increase heart rate, cardiac contractility, and peripheral vascular resistance. Chronic sympathetic overactivation contributes to sustained hypertension.",
+      "Endothelin-1 is the most potent endogenous vasoconstrictor known, produced by vascular endothelial cells. It acts on smooth muscle cells to cause prolonged vasoconstriction and is implicated in the pathogenesis of pulmonary arterial hypertension and chronic kidney disease.",
+      "ACE inhibitors such as enalapril and lisinopril are a class of antihypertensive drugs that block the conversion of angiotensin I to angiotensin II. They reduce vasoconstriction and aldosterone secretion, lowering blood pressure. Common side effects include dry cough due to bradykinin accumulation.",
+      "Calcium channel blockers like amlodipine and nifedipine lower blood pressure by preventing calcium from entering smooth muscle cells in blood vessel walls, causing relaxation and vasodilation. They are commonly used to treat hypertension and angina.",
+      "The kidneys regulate long-term blood pressure through pressure natriuresis, a mechanism where increased renal perfusion pressure leads to increased sodium and water excretion. This relationship between arterial pressure and renal sodium output is fundamental to chronic blood pressure control."
+    ],
+    "domain": "medicine",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What role did the Silk Road play in the spread of the Black Death across Eurasia?",
+    "relevant_doc": "The Silk Road trade network played a critical role in the transmission of the Black Death (bubonic plague) across Eurasia in the 14th century. The plague, caused by the bacterium Yersinia pestis, is believed to have originated in Central Asia. Mongol armies and merchant caravans traveling the Silk Road carried infected fleas on rats along trade routes. The disease spread westward through trading posts and caravan stops, reaching the Black Sea port of Caffa by 1346, where Mongol besiegers reportedly catapulted plague-infected corpses over the city walls. Genoese merchants fleeing Caffa carried the disease to Constantinople and then to Mediterranean ports, from which it spread throughout Europe between 1347 and 1353, killing an estimated 30-60% of Europe's population.",
+    "distractor_docs": [
+      "The Silk Road facilitated the exchange of luxury goods including Chinese silk, Indian spices, Persian carpets, and Roman glassware. These trade routes connected Chang'an (modern Xi'an) in China to the Mediterranean, spanning over 6,000 kilometers through Central Asia.",
+      "The Mongol Empire under Genghis Khan and his successors established the Pax Mongolica, a period of relative stability across Eurasia that facilitated trade and cultural exchange along the Silk Road. The Mongols maintained relay stations (yam) that enabled rapid communication across their vast territory.",
+      "The Justinianic Plague of 541-542 AD was the first recorded pandemic of bubonic plague, striking the Byzantine Empire during the reign of Emperor Justinian I. It killed an estimated 25-50 million people and contributed to the weakening of the Byzantine Empire.",
+      "Marco Polo's travels along the Silk Road in the late 13th century produced one of the most famous accounts of Asian civilizations. His book, Il Milione, described the wealth and sophistication of the Mongol court and Chinese cities, inspiring European interest in Asian trade.",
+      "The maritime Silk Road was a network of sea routes connecting China, Southeast Asia, India, the Arabian Peninsula, and East Africa. Chinese porcelain, tea, and silk were traded for spices, precious stones, and African ivory through ports like Guangzhou, Malacca, and Calicut.",
+      "The Columbian Exchange following 1492 involved the transfer of plants, animals, diseases, and technologies between the Americas and the Old World. Diseases like smallpox devastated indigenous American populations, while crops like potatoes and maize transformed European agriculture.",
+      "The spread of Buddhism along the Silk Road from India to Central Asia, China, Korea, and Japan represents one of the most significant cultural transmissions in history. Buddhist monks, texts, and artistic traditions traveled alongside merchants through oasis towns and mountain passes.",
+      "Caravanserais were roadside inns built along the Silk Road to provide shelter, food, and water for merchants and their animals. These structures, spaced roughly a day's journey apart, served as crucial infrastructure for long-distance trade and cultural exchange."
+    ],
+    "domain": "history",
+    "difficulty": "hard"
+  },
+  {
+    "query": "How does the CAP theorem constrain the design of distributed database systems?",
+    "relevant_doc": "The CAP theorem, formulated by Eric Brewer, states that a distributed data store can simultaneously provide at most two of three guarantees: Consistency (every read receives the most recent write or an error), Availability (every request receives a non-error response, without guarantee that it contains the most recent write), and Partition tolerance (the system continues to operate despite network partitions between nodes). Since network partitions are inevitable in distributed systems, designers must choose between consistency and availability during partitions. CP systems (like HBase and MongoDB with majority reads) sacrifice availability to maintain consistency, returning errors when partitions prevent consensus. AP systems (like Cassandra and DynamoDB) sacrifice consistency to remain available, potentially returning stale data during partitions. This trade-off fundamentally shapes the architecture of distributed databases.",
+    "distractor_docs": [
+      "The ACID properties (Atomicity, Consistency, Isolation, Durability) define the guarantees that traditional relational databases provide for transactions. Atomicity ensures all operations in a transaction succeed or fail together, while Isolation ensures concurrent transactions do not interfere with each other.",
+      "Consensus algorithms like Raft and Paxos enable distributed systems to agree on a single value even when some nodes fail. Raft simplifies the consensus process by electing a leader that manages log replication, while Paxos uses a more complex multi-phase protocol.",
+      "Eventual consistency is a consistency model used in distributed computing where, given enough time without new updates, all replicas of a data item will converge to the same value. Systems like Amazon DynamoDB and Apache Cassandra use this model to achieve high availability.",
+      "Sharding is a database partitioning strategy that distributes data across multiple servers based on a shard key. Each shard holds a subset of the data, enabling horizontal scaling. Challenges include choosing an appropriate shard key, handling cross-shard queries, and rebalancing data.",
+      "Vector clocks are a mechanism for tracking causality in distributed systems. Each node maintains a vector of logical timestamps, one per node. By comparing vector clocks, the system can determine whether two events are causally related or concurrent, enabling conflict detection.",
+      "The two-phase commit (2PC) protocol coordinates distributed transactions across multiple nodes. In the prepare phase, the coordinator asks all participants to vote on committing. In the commit phase, if all vote yes, the coordinator instructs all to commit; otherwise, all abort.",
+      "CRDTs (Conflict-free Replicated Data Types) are data structures that can be replicated across multiple nodes and updated independently without coordination. They guarantee that all replicas converge to the same state, making them suitable for AP systems that need eventual consistency.",
+      "Database replication strategies include synchronous replication (where writes must be confirmed by all replicas before acknowledging), asynchronous replication (where the primary acknowledges immediately and replicas update later), and semi-synchronous replication (requiring confirmation from at least one replica)."
+    ],
+    "domain": "technology",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What is the doctrine of unconscionability in contract law?",
+    "relevant_doc": "The doctrine of unconscionability in contract law allows courts to refuse to enforce contracts or specific contract terms that are so one-sided and unfair that they shock the conscience. Courts typically analyze unconscionability in two dimensions: procedural unconscionability, which examines the circumstances of contract formation (such as unequal bargaining power, hidden terms, lack of meaningful choice, or exploitation of a party's lack of education or sophistication), and substantive unconscionability, which examines the actual terms of the contract (such as grossly excessive prices, one-sided penalty clauses, or unreasonable limitation of remedies). Most jurisdictions require a showing of both procedural and substantive unconscionability, though a strong showing of one may compensate for a weaker showing of the other. The doctrine serves as a safety valve against oppressive contracts that formal contract rules might otherwise enforce.",
+    "distractor_docs": [
+      "The parol evidence rule prevents parties to a written contract from introducing prior or contemporaneous oral or written agreements that contradict, modify, or vary the terms of the written contract. Exceptions exist for fraud, mistake, ambiguity, and conditions precedent.",
+      "The doctrine of consideration requires that each party to a contract must provide something of value in exchange for the other party's promise. Past consideration (something already done before the promise was made) is generally not valid consideration.",
+      "The statute of frauds requires certain types of contracts to be in writing to be enforceable, including contracts for the sale of land, contracts that cannot be performed within one year, and contracts for the sale of goods over a specified dollar amount under the UCC.",
+      "Promissory estoppel allows enforcement of a promise even without consideration when one party reasonably relies on another's promise to their detriment. The doctrine prevents injustice by holding the promisor to their word when the promisee has changed their position in reliance.",
+      "The implied covenant of good faith and fair dealing is a judicial doctrine that requires parties to a contract to act honestly and fairly in their dealings with each other. It prevents one party from destroying the other party's right to receive the benefits of the contract.",
+      "Liquidated damages clauses specify a predetermined amount of damages to be paid in the event of a breach. Courts will enforce such clauses if the amount is a reasonable estimate of anticipated damages and actual damages would be difficult to calculate.",
+      "The doctrine of frustration of purpose excuses a party from performing a contract when an unforeseen event undermines the fundamental purpose of the contract, even though performance is still technically possible. It differs from impossibility, which excuses performance when it becomes physically or legally impossible.",
+      "Adhesion contracts are standardized form contracts drafted by a party with superior bargaining power and presented on a take-it-or-leave-it basis. While not automatically unenforceable, courts scrutinize them more carefully, particularly regarding unexpected or oppressive terms."
+    ],
+    "domain": "law",
+    "difficulty": "hard"
+  },
+  {
+    "query": "How do dark matter halos influence the formation and evolution of galaxies?",
+    "relevant_doc": "Dark matter halos are massive, roughly spherical regions of dark matter that surround galaxies and galaxy clusters. They play a fundamental role in galaxy formation through gravitational attraction. In the early universe, dark matter clumped together first due to gravitational instability, forming halos that then attracted baryonic (ordinary) matter into their gravitational wells. This baryonic matter cooled and condensed to form stars and galaxies at the centers of these halos. The mass and concentration of a dark matter halo determines the rotation curve of the galaxy it hosts, explaining why galaxies rotate faster at their edges than predicted by visible matter alone. Halo mergers drive galaxy mergers, and the hierarchical assembly of halos — small halos merging to form larger ones — mirrors the hierarchical formation of galaxies from dwarf galaxies to massive ellipticals.",
+    "distractor_docs": [
+      "Gravitational lensing occurs when the gravity of a massive object, such as a galaxy cluster, bends the path of light from a more distant source. Strong lensing produces multiple images or arcs of background galaxies, while weak lensing causes subtle distortions that can be statistically measured to map dark matter distributions.",
+      "The cosmic microwave background (CMB) radiation is the thermal remnant of the Big Bang, emitted approximately 380,000 years after the universe began. Tiny temperature fluctuations in the CMB correspond to density variations that seeded the formation of large-scale cosmic structures.",
+      "Baryon acoustic oscillations (BAO) are periodic fluctuations in the density of visible baryonic matter in the universe, caused by acoustic waves in the early universe plasma. They provide a standard ruler for measuring cosmic distances and constraining dark energy models.",
+      "Active galactic nuclei (AGN) are extremely luminous regions at the centers of some galaxies, powered by accretion of matter onto supermassive black holes. AGN feedback — through jets and radiation — can heat surrounding gas and suppress star formation in the host galaxy.",
+      "The Lambda-CDM model is the standard cosmological model that describes a universe dominated by dark energy (Lambda) and cold dark matter (CDM). It successfully predicts the large-scale structure of the universe, the CMB power spectrum, and the accelerating expansion of the universe.",
+      "Galaxy clusters are the largest gravitationally bound structures in the universe, containing hundreds to thousands of galaxies, hot intracluster gas, and vast amounts of dark matter. The Virgo Cluster and the Coma Cluster are well-studied examples in the nearby universe.",
+      "Stellar feedback processes, including supernova explosions and stellar winds from massive stars, inject energy and metals into the interstellar medium. This feedback regulates star formation by heating and dispersing gas clouds, preventing runaway gravitational collapse.",
+      "The Tully-Fisher relation is an empirical relationship between the intrinsic luminosity of a spiral galaxy and its rotational velocity. Brighter galaxies rotate faster, reflecting the correlation between a galaxy's total mass (including dark matter) and its stellar content."
+    ],
+    "domain": "science",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What are the economic consequences of a liquidity trap for monetary policy effectiveness?",
+    "relevant_doc": "A liquidity trap occurs when interest rates are at or near zero and the central bank's conventional monetary policy becomes ineffective. In this situation, people prefer to hold cash rather than bonds because the opportunity cost of holding money is negligible. Even when the central bank increases the money supply, banks may hoard excess reserves rather than lending, and consumers and businesses may save rather than spend due to pessimistic expectations. The result is that monetary expansion fails to stimulate aggregate demand or raise inflation. Japan's experience in the 1990s and 2000s is the classic example, where near-zero interest rates and massive monetary expansion failed to end deflation. Keynesian economists argue that fiscal policy (government spending) becomes the primary tool for stimulating demand in a liquidity trap, while monetarists suggest that unconventional measures like quantitative easing can still be effective through portfolio rebalancing and expectations channels.",
+    "distractor_docs": [
+      "The IS-LM model describes the interaction between the goods market (IS curve) and the money market (LM curve) to determine equilibrium interest rates and output. In a liquidity trap, the LM curve becomes horizontal at the zero lower bound, making monetary policy shifts along the LM curve ineffective.",
+      "The zero lower bound (ZLB) on nominal interest rates constrains central banks from cutting rates below zero in conventional policy. Some central banks have experimented with negative interest rates, charging banks for holding excess reserves to incentivize lending.",
+      "The velocity of money measures how frequently a unit of currency is used to purchase goods and services in a given period. According to the quantity theory of money (MV = PQ), if velocity falls sharply, increases in money supply may not translate into higher nominal GDP.",
+      "Deflation is a sustained decrease in the general price level of goods and services. It increases the real burden of debt, discourages spending as consumers wait for lower prices, and can create a deflationary spiral where falling prices lead to reduced production and further price declines.",
+      "Forward guidance is a communication tool used by central banks to influence market expectations about future monetary policy. By committing to keep interest rates low for an extended period, central banks aim to lower long-term rates and stimulate borrowing and investment.",
+      "The multiplier effect describes how an initial change in spending leads to a larger change in national income. In Keynesian economics, the government spending multiplier is greater than one, meaning that each dollar of government spending generates more than one dollar of economic output.",
+      "Helicopter money is a proposed monetary policy tool where the central bank directly distributes money to citizens, bypassing the banking system. Unlike quantitative easing, which increases bank reserves, helicopter money directly increases household purchasing power.",
+      "The natural rate of interest (r-star) is the real interest rate consistent with full employment and stable inflation. When the natural rate falls below zero, conventional monetary policy cannot achieve the necessary stimulus, contributing to liquidity trap conditions."
+    ],
+    "domain": "economics",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What is the greenhouse effect and how does it warm Earth's atmosphere?",
+    "relevant_doc": "The greenhouse effect is a natural process that warms Earth's surface. When the Sun's energy reaches Earth, some of it is reflected back to space and the rest is absorbed by the land and oceans, heating the surface. Earth then radiates this energy as infrared (heat) radiation. Greenhouse gases in the atmosphere — including carbon dioxide, methane, water vapor, and nitrous oxide — absorb and re-emit this infrared radiation in all directions, including back toward the surface. This trapping of heat keeps Earth's average temperature about 33°C warmer than it would be without an atmosphere. Human activities, particularly burning fossil fuels and deforestation, have increased atmospheric concentrations of greenhouse gases, enhancing the natural greenhouse effect and causing global warming.",
+    "distractor_docs": [
+      "The ozone layer is a region of Earth's stratosphere that absorbs most of the Sun's ultraviolet radiation. It contains high concentrations of ozone (O3) molecules. Depletion of the ozone layer by chlorofluorocarbons (CFCs) led to the Montreal Protocol in 1987.",
+      "Tidal forces are gravitational effects caused primarily by the Moon and Sun on Earth's oceans. The Moon's gravity pulls water toward it, creating a bulge on the near side and a corresponding bulge on the far side due to inertia, resulting in two high tides per day.",
+      "Continental drift is the hypothesis that Earth's continents have moved over geologic time relative to each other, appearing to have drifted across the ocean bed. This idea was later incorporated into the theory of plate tectonics.",
+      "The Coriolis effect is a deflection of moving objects caused by Earth's rotation. It causes winds and ocean currents to curve to the right in the Northern Hemisphere and to the left in the Southern Hemisphere.",
+      "Earthquakes occur when stress accumulated along geological faults is suddenly released, producing seismic waves that shake the ground. The Richter scale and moment magnitude scale measure earthquake intensity.",
+      "The nitrogen cycle describes the transformation of nitrogen through various chemical forms as it circulates among the atmosphere, terrestrial, and aquatic ecosystems. Nitrogen fixation by bacteria converts atmospheric N2 into ammonia usable by plants.",
+      "Coral reefs are underwater ecosystems built by colonies of tiny animals called coral polyps. They support approximately 25% of all marine species despite covering less than 1% of the ocean floor."
+    ],
+    "domain": "science",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What was the significance of the Magna Carta signed in 1215?",
+    "relevant_doc": "The Magna Carta, signed in 1215 by King John of England under pressure from rebellious barons, was a landmark document in the history of constitutional law. It established the principle that the king was not above the law and that even the monarch's power could be limited by a written charter. Key provisions included the right to a fair trial by jury, protection against unlawful imprisonment, limitations on taxation without the consent of a council of barons, and guarantees of church freedoms. Although many of its specific provisions were relevant only to medieval feudal society, the Magna Carta's broader principles — that government should be based on law rather than arbitrary power — profoundly influenced the development of constitutional governance, including the English Bill of Rights, the United States Constitution, and the Universal Declaration of Human Rights.",
+    "distractor_docs": [
+      "The Renaissance was a cultural movement that began in Italy in the 14th century and spread throughout Europe. It marked a renewed interest in classical Greek and Roman art, literature, and philosophy, and produced masterworks by artists like Leonardo da Vinci and Michelangelo.",
+      "The printing press, invented by Johannes Gutenberg around 1440, revolutionized the production of books and the spread of knowledge. It made written materials more accessible and affordable, contributing to the Protestant Reformation and the Scientific Revolution.",
+      "The Spanish Armada of 1588 was a fleet of 130 ships sent by King Philip II of Spain to invade England. The fleet was defeated by the English navy and severe storms, marking a turning point in European naval power.",
+      "The Crusades were a series of religious wars sanctioned by the Latin Church in the medieval period, primarily aimed at recovering the Holy Land from Islamic rule. They had lasting effects on trade, culture, and relations between Christianity and Islam.",
+      "Feudalism was the dominant social system in medieval Europe, in which nobility held lands from the Crown in exchange for military service, and vassals were in turn tenants of the nobles. Peasants (serfs) were obliged to live on their lord's land and provide labor.",
+      "The Black Death of 1347-1353 killed an estimated one-third of Europe's population. The resulting labor shortage gave surviving peasants greater bargaining power, contributing to the decline of feudalism and significant social and economic changes.",
+      "The Hundred Years' War (1337-1453) was a series of conflicts between England and France over succession to the French throne. It saw the rise of national identity, the decline of feudal armies, and the emergence of Joan of Arc as a French national heroine."
+    ],
+    "domain": "history",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What is the basic principle behind how a relational database stores and retrieves data?",
+    "relevant_doc": "A relational database organizes data into tables (also called relations), where each table consists of rows (records) and columns (attributes). Each table represents a specific entity type, and relationships between entities are established through shared key columns. A primary key uniquely identifies each row in a table, while a foreign key in one table references the primary key of another table, creating links between related data. Data is retrieved using Structured Query Language (SQL), which allows users to query, insert, update, and delete data using declarative statements. The relational model, proposed by Edgar F. Codd in 1970, ensures data integrity through constraints and normalization, which eliminates redundancy by organizing data into multiple related tables.",
+    "distractor_docs": [
+      "Machine learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It uses algorithms to identify patterns in data and make predictions or decisions.",
+      "The World Wide Web was invented by Tim Berners-Lee in 1989 at CERN. It uses hypertext transfer protocol (HTTP) to transmit web pages written in HTML, connected through hyperlinks that allow users to navigate between documents.",
+      "Operating systems like Windows, macOS, and Linux manage computer hardware and software resources and provide common services for computer programs. They handle memory management, process scheduling, and input/output operations.",
+      "Version control systems like Git track changes to source code over time, allowing multiple developers to collaborate on projects. Git uses a distributed model where each developer has a complete copy of the repository history.",
+      "Agile software development is an iterative approach to project management that emphasizes flexibility, collaboration, and customer feedback. Frameworks like Scrum and Kanban organize work into short cycles called sprints.",
+      "Computer networks connect devices to share resources and communicate. Local area networks (LANs) connect devices within a building, while wide area networks (WANs) connect devices across larger geographic areas.",
+      "Object-oriented programming (OOP) is a programming paradigm based on the concept of objects, which contain data (attributes) and code (methods). Key principles include encapsulation, inheritance, polymorphism, and abstraction."
+    ],
+    "domain": "technology",
+    "difficulty": "easy"
+  },
+  {
+    "query": "What are the main symptoms and treatment options for type 2 diabetes?",
+    "relevant_doc": "Type 2 diabetes is a chronic metabolic condition characterized by insulin resistance and relative insulin deficiency, leading to elevated blood glucose levels. Common symptoms include increased thirst, frequent urination, unexplained weight loss, fatigue, blurred vision, and slow-healing wounds. Many patients are asymptomatic in early stages, making screening important for at-risk populations. Treatment follows a stepwise approach: lifestyle modifications (diet, exercise, weight loss) are the foundation, often combined with metformin as first-line medication. If blood glucose remains uncontrolled, additional medications may be added, including sulfonylureas, DPP-4 inhibitors, GLP-1 receptor agonists, SGLT2 inhibitors, or insulin therapy. Regular monitoring of hemoglobin A1c (target typically below 7%) guides treatment adjustments. Management also addresses cardiovascular risk factors including blood pressure and cholesterol.",
+    "distractor_docs": [
+      "Osteoporosis is a condition characterized by decreased bone density and increased fracture risk. It is most common in postmenopausal women due to declining estrogen levels. Treatment includes calcium and vitamin D supplementation, weight-bearing exercise, and medications like bisphosphonates.",
+      "Chronic obstructive pulmonary disease (COPD) is a group of progressive lung diseases including emphysema and chronic bronchitis. The primary cause is long-term exposure to irritating gases, most often cigarette smoke. Treatment includes bronchodilators, inhaled corticosteroids, and pulmonary rehabilitation.",
+      "Rheumatoid arthritis is an autoimmune disorder that primarily affects the joints, causing chronic inflammation, pain, and swelling. Unlike osteoarthritis, it typically affects joints symmetrically. Treatment includes disease-modifying antirheumatic drugs (DMARDs) and biologic agents.",
+      "Migraine is a neurological condition characterized by intense, debilitating headaches often accompanied by nausea, vomiting, and sensitivity to light and sound. Treatment includes acute medications (triptans, NSAIDs) and preventive therapies (beta-blockers, anticonvulsants, CGRP inhibitors).",
+      "Parkinson's disease is a progressive neurodegenerative disorder caused by the loss of dopamine-producing neurons in the substantia nigra. Symptoms include tremor, rigidity, bradykinesia, and postural instability. Levodopa remains the most effective treatment.",
+      "Celiac disease is an autoimmune disorder triggered by the ingestion of gluten in genetically predisposed individuals. It damages the small intestinal villi, leading to malabsorption. The only effective treatment is a strict lifelong gluten-free diet.",
+      "Hypothyroidism occurs when the thyroid gland does not produce enough thyroid hormones, leading to fatigue, weight gain, cold intolerance, and depression. The most common cause is Hashimoto's thyroiditis. Treatment involves daily levothyroxine replacement therapy."
+    ],
+    "domain": "medicine",
+    "difficulty": "easy"
+  },
+  {
+    "query": "How does natural language processing enable machines to understand human language?",
+    "relevant_doc": "Natural language processing (NLP) enables machines to understand human language through a combination of linguistic rules, statistical methods, and deep learning techniques. Modern NLP systems typically process text through several stages: tokenization breaks text into words or subwords, and embeddings convert these tokens into dense numerical vectors that capture semantic meaning. Transformer-based models like BERT and GPT use self-attention mechanisms to understand context by weighing the relationships between all words in a sentence simultaneously. Pre-training on massive text corpora allows these models to learn grammar, facts, and reasoning patterns, while fine-tuning adapts them to specific tasks like sentiment analysis, named entity recognition, question answering, and machine translation. The key breakthrough was moving from hand-crafted rules to learned representations that capture the nuances of human language.",
+    "distractor_docs": [
+      "Computer vision is a field of artificial intelligence that trains computers to interpret and understand visual information from the world. Deep learning models, particularly convolutional neural networks, have achieved human-level performance on tasks like image classification and object detection.",
+      "Speech recognition technology converts spoken language into text using acoustic models and language models. Modern systems use end-to-end deep learning approaches that directly map audio spectrograms to text sequences without intermediate phonetic representations.",
+      "Robotics combines mechanical engineering, electrical engineering, and computer science to design, construct, and operate robots. Autonomous robots use sensors, actuators, and control algorithms to perceive their environment and perform tasks without human intervention.",
+      "Knowledge graphs represent information as networks of entities and relationships. They are used by search engines, recommendation systems, and question-answering systems to organize and reason about structured knowledge.",
+      "Federated learning is a machine learning approach where models are trained across multiple decentralized devices holding local data samples, without exchanging the raw data. This preserves privacy while enabling collaborative model improvement.",
+      "AutoML (Automated Machine Learning) automates the process of applying machine learning to real-world problems, including feature engineering, model selection, and hyperparameter tuning. It makes machine learning accessible to non-experts.",
+      "Edge computing processes data near the source of data generation rather than in a centralized data center. This reduces latency, bandwidth usage, and privacy concerns for applications like autonomous vehicles and IoT devices.",
+      "Explainable AI (XAI) focuses on making the decisions and predictions of AI systems understandable to humans. Techniques include attention visualization, feature importance analysis, and generating natural language explanations."
+    ],
+    "domain": "technology",
+    "difficulty": "medium"
+  },
+  {
+    "query": "What were the economic and social impacts of the transatlantic slave trade on West Africa?",
+    "relevant_doc": "The transatlantic slave trade had devastating and long-lasting economic and social impacts on West Africa. Economically, it distorted regional trade patterns by redirecting commerce toward the export of human beings rather than goods, stunting the development of productive industries. The introduction of European firearms created an arms race among African kingdoms, as states needed weapons to capture slaves and defend against slave raids, creating a self-perpetuating cycle of violence. Socially, the trade depopulated vast regions, with an estimated 12.5 million Africans forcibly transported between the 16th and 19th centuries. This demographic loss disproportionately affected young, productive adults, weakening agricultural output and social structures. The trade also intensified internal conflicts, as kingdoms like Dahomey and Asante expanded through warfare partly to supply captives to European traders. The resulting political instability and economic underdevelopment left lasting legacies that contributed to the vulnerability of African societies to later European colonization.",
+    "distractor_docs": [
+      "The Scramble for Africa (1881-1914) was the rapid colonization of the African continent by European powers. The Berlin Conference of 1884-1885 established rules for the partition, and by 1914, only Ethiopia and Liberia remained independent African states.",
+      "The abolition movement gained momentum in the late 18th century, led by figures like William Wilberforce in Britain and Frederick Douglass in the United States. Britain abolished the slave trade in 1807 and emancipated slaves throughout its empire in 1833.",
+      "The Kingdom of Mali, at its height in the 14th century under Mansa Musa, was one of the wealthiest empires in world history. Its capital, Timbuktu, was a center of Islamic learning and trade, particularly in gold and salt.",
+      "The Haitian Revolution (1791-1804) was the only successful large-scale slave revolt in history, resulting in the establishment of Haiti as the first independent Black republic. It was inspired by the French Revolution and led by Toussaint Louverture and Jean-Jacques Dessalines.",
+      "The Bantu migration was a massive movement of Bantu-speaking peoples from West Africa across sub-Saharan Africa over a period of several thousand years. They spread agriculture, ironworking technology, and Bantu languages throughout central, eastern, and southern Africa.",
+      "The Great Zimbabwe was a medieval city in southeastern Africa that served as the capital of the Kingdom of Zimbabwe. Its impressive stone structures, built without mortar, demonstrate the architectural and organizational sophistication of pre-colonial African civilizations.",
+      "Pan-Africanism is a political and cultural movement that seeks to unify African peoples and promote solidarity among people of African descent worldwide. Key figures include W.E.B. Du Bois, Marcus Garvey, and Kwame Nkrumah.",
+      "The Rwandan genocide of 1994 resulted in the killing of an estimated 800,000 Tutsi and moderate Hutu over approximately 100 days. The international community's failure to intervene prompted significant reforms in international humanitarian response."
+    ],
+    "domain": "history",
+    "difficulty": "medium"
+  },
+  {
+    "query": "How do mRNA vaccines differ from traditional vaccine approaches?",
+    "relevant_doc": "mRNA vaccines represent a fundamentally different approach from traditional vaccines. Traditional vaccines use weakened or inactivated viruses, or purified viral proteins, to stimulate an immune response. mRNA vaccines instead deliver synthetic messenger RNA encoding a specific viral protein (such as the SARS-CoV-2 spike protein) encapsulated in lipid nanoparticles. Once injected, cells take up the lipid nanoparticles and use the mRNA as instructions to produce the viral protein. The immune system recognizes this protein as foreign and mounts both antibody and T-cell responses. The mRNA is naturally degraded within days and never enters the cell nucleus or interacts with DNA. Key advantages include rapid development (the sequence can be designed within days of identifying a pathogen), scalable manufacturing, and the ability to quickly update the vaccine for new variants by simply changing the mRNA sequence.",
+    "distractor_docs": [
+      "Viral vector vaccines use a modified, harmless virus (the vector) to deliver genetic instructions for making a target antigen. The Oxford-AstraZeneca COVID-19 vaccine uses a chimpanzee adenovirus vector to deliver the gene for the SARS-CoV-2 spike protein.",
+      "Adjuvants are substances added to vaccines to enhance the immune response. Common adjuvants include aluminum salts, oil-in-water emulsions like MF59, and newer adjuvants like AS01 used in the shingles vaccine Shingrix.",
+      "Herd immunity occurs when a sufficient proportion of a population is immune to an infectious disease, providing indirect protection to those who are not immune. The threshold varies by disease, typically requiring 70-95% immunity depending on the pathogen's transmissibility.",
+      "The cold chain refers to the temperature-controlled supply chain required to maintain vaccine potency from manufacture to administration. Some vaccines require ultra-cold storage (e.g., -70°C for certain mRNA vaccines), posing logistical challenges for global distribution.",
+      "Passive immunization involves administering pre-formed antibodies rather than stimulating the body to produce its own. Examples include convalescent plasma therapy, monoclonal antibody treatments, and immunoglobulin preparations for post-exposure prophylaxis.",
+      "Vaccine hesitancy, defined by the WHO as a delay in acceptance or refusal of vaccination despite availability, is influenced by factors including confidence in vaccine safety, complacency about disease risk, and convenience of access to vaccination services.",
+      "DNA vaccines deliver plasmid DNA encoding the target antigen directly into cells. While they have shown promise in veterinary medicine, DNA vaccines for humans have faced challenges with immunogenicity and require delivery technologies like electroporation to enhance uptake.",
+      "Protein subunit vaccines contain purified pieces of the pathogen (usually proteins) rather than the whole organism. The Novavax COVID-19 vaccine uses recombinant spike protein nanoparticles combined with a saponin-based adjuvant to stimulate immunity."
+    ],
+    "domain": "medicine",
+    "difficulty": "medium"
+  },
+  {
+    "query": "What is the economic concept of moral hazard and how does it affect insurance markets?",
+    "relevant_doc": "Moral hazard is an economic concept describing the tendency of individuals or institutions to take on greater risks when they are insulated from the consequences of those risks. In insurance markets, moral hazard manifests in two forms: ex-ante moral hazard, where insured individuals take fewer precautions to prevent losses (for example, a person with comprehensive car insurance may drive less carefully), and ex-post moral hazard, where insured individuals overuse or inflate claims after a loss occurs (for example, seeking unnecessary medical treatments when fully insured). Moral hazard arises because the insurer cannot perfectly monitor the behavior of the insured party — a problem of asymmetric information. Insurance companies mitigate moral hazard through mechanisms like deductibles (making the insured bear part of the cost), copayments, experience-rated premiums (adjusting premiums based on claims history), and policy exclusions for reckless behavior.",
+    "distractor_docs": [
+      "Adverse selection occurs in insurance markets when individuals with higher risk are more likely to purchase insurance, while lower-risk individuals opt out. This information asymmetry can lead to a 'death spiral' where rising premiums drive away healthy customers, leaving only high-risk policyholders.",
+      "The principal-agent problem arises when one party (the agent) makes decisions on behalf of another (the principal), but the agent's interests may not align with the principal's. In corporate governance, shareholders (principals) may struggle to ensure that managers (agents) act in their best interest.",
+      "Market failure occurs when the free market fails to allocate resources efficiently. Common causes include externalities, public goods, information asymmetry, and market power. Government intervention through regulation, taxation, or subsidies may be needed to correct these failures.",
+      "Game theory studies strategic interactions between rational decision-makers. The prisoner's dilemma, Nash equilibrium, and dominant strategies are fundamental concepts used to analyze competitive behavior in economics, political science, and biology.",
+      "Behavioral economics integrates insights from psychology into economic models, recognizing that people often make decisions that deviate from the predictions of rational choice theory. Concepts like loss aversion, anchoring, and present bias explain systematic departures from rationality.",
+      "The tragedy of the commons describes a situation where individuals acting in their own self-interest deplete a shared resource, even though it is in no one's long-term interest for this to happen. Examples include overfishing, deforestation, and air pollution.",
+      "Pareto efficiency is a state of resource allocation where it is impossible to make any individual better off without making at least one individual worse off. It is a key concept in welfare economics for evaluating the efficiency of economic outcomes.",
+      "Externalities are costs or benefits that affect parties not directly involved in a transaction. Negative externalities like pollution impose costs on society, while positive externalities like education benefit others beyond the individual receiving it."
+    ],
+    "domain": "economics",
+    "difficulty": "medium"
+  },
+  {
+    "query": "How does the doctrine of promissory estoppel operate as an exception to the consideration requirement in contract law?",
+    "relevant_doc": "Promissory estoppel operates as an equitable exception to the traditional requirement that a contract must be supported by consideration to be enforceable. Under Section 90 of the Restatement (Second) of Contracts, a promise that the promisor should reasonably expect to induce action or forbearance by the promisee, and which does induce such action or forbearance, is binding if injustice can be avoided only by enforcement of the promise. The remedy may be limited as justice requires, meaning courts may award reliance damages (out-of-pocket losses) rather than full expectation damages. Classic applications include cases where an employer's promise of a pension induces an employee to retire, or where a subcontractor's bid induces a general contractor to rely on it in submitting a prime bid. The doctrine prevents a party from reneging on a promise when the other party has detrimentally changed their position in reasonable reliance on that promise.",
+    "distractor_docs": [
+      "The mailbox rule in contract law provides that an acceptance of an offer is effective upon dispatch (when placed in the mail), rather than upon receipt by the offeror. This rule applies to acceptances sent by a reasonable medium of communication and creates a binding contract at the moment of mailing.",
+      "The doctrine of consideration requires that each party to a contract must give something of value — a benefit to the promisor or a detriment to the promisee. Nominal consideration (such as one dollar) is generally sufficient, but past consideration and moral obligation are typically not enforceable.",
+      "The Statute of Frauds requires certain categories of contracts to be evidenced by a signed writing to be enforceable, including contracts for the sale of land, contracts not performable within one year, suretyship agreements, and contracts for the sale of goods exceeding $500 under the UCC.",
+      "Anticipatory repudiation occurs when one party to a contract unequivocally indicates, before performance is due, that they will not perform their contractual obligations. The non-breaching party may treat the repudiation as a total breach and immediately seek damages.",
+      "The doctrine of impossibility excuses contractual performance when an unforeseen event makes performance objectively impossible. Modern courts have expanded this to include impracticability, where performance is possible but would involve extreme and unreasonable difficulty or expense.",
+      "Quasi-contract (unjust enrichment) is an equitable remedy that prevents one party from being unjustly enriched at another's expense, even in the absence of a valid contract. The court imposes an obligation to pay the reasonable value of benefits received.",
+      "The duty to mitigate damages requires the non-breaching party in a contract dispute to take reasonable steps to minimize the losses resulting from the breach. Failure to mitigate may reduce the damages recoverable from the breaching party.",
+      "Specific performance is an equitable remedy that compels a party to perform their contractual obligations rather than paying monetary damages. It is typically available only when the subject matter is unique (such as real property) and monetary damages would be inadequate."
+    ],
+    "domain": "law",
+    "difficulty": "hard"
+  },
+  {
+    "query": "What is the difference between Type I and Type II errors in statistical hypothesis testing?",
+    "relevant_doc": "In statistical hypothesis testing, Type I and Type II errors represent two kinds of incorrect conclusions. A Type I error (false positive) occurs when the null hypothesis is true but is incorrectly rejected — for example, concluding that a drug is effective when it actually has no effect. The probability of a Type I error is denoted by alpha (α), which is the significance level set by the researcher (commonly 0.05). A Type II error (false negative) occurs when the null hypothesis is false but fails to be rejected — for example, concluding that a drug has no effect when it actually does. The probability of a Type II error is denoted by beta (β), and statistical power (1 - β) is the probability of correctly rejecting a false null hypothesis. There is an inherent trade-off: reducing α (making it harder to reject the null) increases β, and vice versa. Increasing sample size is the primary way to reduce both error types simultaneously.",
+    "distractor_docs": [
+      "Bayesian inference is an approach to statistical inference that updates the probability of a hypothesis as more evidence becomes available. It uses Bayes' theorem to combine prior beliefs with observed data to produce posterior probabilities, contrasting with frequentist methods that rely solely on sample data.",
+      "The central limit theorem states that the sampling distribution of the sample mean approaches a normal distribution as the sample size increases, regardless of the shape of the population distribution. This theorem underlies many statistical methods including confidence intervals and hypothesis tests.",
+      "Confidence intervals provide a range of plausible values for a population parameter based on sample data. A 95% confidence interval means that if the sampling procedure were repeated many times, approximately 95% of the calculated intervals would contain the true parameter value.",
+      "The p-value is the probability of obtaining test results at least as extreme as the observed results, assuming the null hypothesis is true. A small p-value (typically ≤ 0.05) suggests that the observed data is unlikely under the null hypothesis, leading to its rejection.",
+      "Multiple comparison correction addresses the increased risk of false positives when performing many statistical tests simultaneously. Methods like Bonferroni correction divide the significance level by the number of tests, while the Benjamini-Hochberg procedure controls the false discovery rate.",
+      "Effect size measures the magnitude of a phenomenon independent of sample size. Common measures include Cohen's d for comparing means, Pearson's r for correlations, and odds ratios for categorical data. Unlike p-values, effect sizes convey practical significance.",
+      "Regression analysis models the relationship between a dependent variable and one or more independent variables. Linear regression fits a straight line to the data, while logistic regression models binary outcomes using a sigmoid function.",
+      "The chi-squared test assesses whether observed frequencies in categorical data differ significantly from expected frequencies. It is commonly used for tests of independence (whether two categorical variables are related) and goodness-of-fit tests (whether data follows a specified distribution)."
+    ],
+    "domain": "science",
+    "difficulty": "hard"
+  }
+]

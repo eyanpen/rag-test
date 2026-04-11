@@ -1,0 +1,155 @@
+# Symmetric vs Dual-Tower Embedding Comparison
+# Generated: 2026-04-11 13:06:15
+
+============================================================
+  BGE-M3 (default) (BAAI/bge-m3)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9064           0.5977     ✓
+Query 1 (引力)        0.5692           0.8316     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.8655           0.6351     ✓
+Query 1 (引力)        0.6109           0.8052     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.0409          +0.0374   
+Query 1 (引力)       +0.0418          -0.0264   
+
+
+============================================================
+  BGE-M3 (heavy) (BAAI/bge-m3/heavy)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9064           0.5977     ✓
+Query 1 (引力)        0.5692           0.8316     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.8655           0.6351     ✓
+Query 1 (引力)        0.6109           0.8052     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.0409          +0.0374   
+Query 1 (引力)       +0.0418          -0.0264   
+
+
+============================================================
+  BGE-M3 (interactive) (BAAI/bge-m3/interactive)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9064           0.5977     ✓
+Query 1 (引力)        0.5692           0.8316     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.8655           0.6351     ✓
+Query 1 (引力)        0.6109           0.8052     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.0409          +0.0374   
+Query 1 (引力)       +0.0418          -0.0264   
+
+
+============================================================
+  E5-Mistral-7B (intfloat/e5-mistral-7b-instruct)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9208           0.6032     ✓
+Query 1 (引力)        0.5850           0.5861     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.6770           0.5756     ✓
+Query 1 (引力)        0.4859           0.5155     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.2438          -0.0276   
+Query 1 (引力)       -0.0991          -0.0705   
+
+
+============================================================
+  mE5-Large (intfloat/multilingual-e5-large-instruct)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9319           0.7069     ✓
+Query 1 (引力)        0.7539           0.8696     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9275           0.6910     ✓
+Query 1 (引力)        0.7377           0.8851     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.0044          -0.0159   
+Query 1 (引力)       -0.0162          +0.0155   
+
+
+============================================================
+  Nomic-v1.5 (nomic-ai/nomic-embed-text-v1.5)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9238           0.3839     ✓
+Query 1 (引力)        0.3309           0.7920     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.9193           0.4441     ✓
+Query 1 (引力)        0.4050           0.8449     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.0045          +0.0602   
+Query 1 (引力)       +0.0742          +0.0530   
+
+
+============================================================
+  Qwen3-Emb-8B (Qwen/Qwen3-Embedding-8B)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.8936           0.5876     ✓
+Query 1 (引力)        0.7050           0.6547     ✗
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.7388           0.6063     ✓
+Query 1 (引力)        0.6201           0.5948     ✗
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.1548          +0.0187   
+Query 1 (引力)       -0.0849          -0.0599   
+
+
+============================================================
+  Qwen3-Emb-8B-Alt (Qwen/Qwen3-Embedding-8B-Alt)
+============================================================
+=== Symmetric (no prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.8844           0.1667     ✓
+Query 1 (引力)        0.1974           0.7531     ✓
+
+=== Dual-Tower (with prefix) ===
+                  Doc 0 (北京)  Doc 1 (引力)
+Query 0 (首都)        0.7432           0.0706     ✓
+Query 1 (引力)        0.0796           0.6327     ✓
+
+=== Delta (dual-tower - symmetric) ===
+                  Doc 0         Doc 1       
+Query 0 (首都)       -0.1412          -0.0962   
+Query 1 (引力)       -0.1178          -0.1204   
+
+
