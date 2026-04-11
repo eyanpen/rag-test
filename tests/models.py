@@ -14,7 +14,7 @@ class EmbeddingModelConfig:
 @dataclass
 class BenchmarkConfig:
     api_base_url: str = "http://10.210.156.69:8633"
-    llm_model: str = "Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8"
+    llm_model: str = "deepseek-ai/DeepSeek-V3.2"
     falkordb_host: str = "10.210.156.69"
     falkordb_port: int = 6379
     sample_size: int = 5
