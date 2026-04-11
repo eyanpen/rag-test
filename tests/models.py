@@ -1,6 +1,13 @@
 """Data models, constants and utility functions for embedding benchmark."""
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import List, Optional
+
+
+class DualTowerMode(str, Enum):
+    """Embedding encoding mode."""
+    SYMMETRIC = "symmetric"     # query 和 document 使用相同编码
+    ASYMMETRIC = "asymmetric"   # query 用 query_prefix，document 用 document_prefix
 
 
 @dataclass
@@ -9,6 +16,9 @@ class EmbeddingModelConfig:
     dim: int
     max_tokens: int
     display_name: str
+    supports_dual_tower: bool = False
+    query_prefix: str = ""
+    document_prefix: str = ""
 
 
 @dataclass
@@ -76,14 +86,53 @@ class BenchmarkSummary:
 
 
 EMBEDDING_MODELS = [
-    EmbeddingModelConfig("BAAI/bge-m3", 1024, 8192, "BGE-M3 (default)"),
-    EmbeddingModelConfig("BAAI/bge-m3/heavy", 1024, 8192, "BGE-M3 (heavy)"),
-    EmbeddingModelConfig("BAAI/bge-m3/interactive", 1024, 8192, "BGE-M3 (interactive)"),
-    EmbeddingModelConfig("intfloat/e5-mistral-7b-instruct", 4096, 4096, "E5-Mistral-7B"),
-    EmbeddingModelConfig("intfloat/multilingual-e5-large-instruct", 1024, 512, "mE5-Large"),
-    EmbeddingModelConfig("nomic-ai/nomic-embed-text-v1.5", 768, 8192, "Nomic-v1.5"),
-    EmbeddingModelConfig("Qwen/Qwen3-Embedding-8B", 4096, 8192, "Qwen3-Emb-8B"),
-    EmbeddingModelConfig("Qwen/Qwen3-Embedding-8B-Alt", 4096, 32768, "Qwen3-Emb-8B-Alt"),
+    # BGE-M3: vLLM API 下三个变体返回完全相同的向量，但支持 query:/passage: prefix 双塔 (cos(q,d)=0.970)
+    EmbeddingModelConfig("BAAI/bge-m3", 1024, 8192, "BGE-M3 (default)",
+        supports_dual_tower=True,
+        query_prefix="query: ",
+        document_prefix="passage: ",
+    ),
+    EmbeddingModelConfig("BAAI/bge-m3/heavy", 1024, 8192, "BGE-M3 (heavy)",
+        supports_dual_tower=True,
+        query_prefix="query: ",
+        document_prefix="passage: ",
+    ),
+    EmbeddingModelConfig("BAAI/bge-m3/interactive", 1024, 8192, "BGE-M3 (interactive)",
+        supports_dual_tower=True,
+        query_prefix="query: ",
+        document_prefix="passage: ",
+    ),
+    # E5-Mistral: query prefix 效果显著 (cos(bare,q)=0.787)
+    EmbeddingModelConfig(
+        "intfloat/e5-mistral-7b-instruct", 4096, 4096, "E5-Mistral-7B",
+        supports_dual_tower=True,
+        query_prefix="Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
+        document_prefix="",
+    ),
+    # mE5-Large: query/doc prefix 都有效 (cos(q,d)=0.980)
+    EmbeddingModelConfig("intfloat/multilingual-e5-large-instruct", 1024, 512, "mE5-Large",
+        supports_dual_tower=True,
+        query_prefix="query: ",
+        document_prefix="passage: ",
+    ),
+    # Nomic: query/doc prefix 效果最明显 (cos(q,d)=0.934)
+    EmbeddingModelConfig("nomic-ai/nomic-embed-text-v1.5", 768, 8192, "Nomic-v1.5",
+        supports_dual_tower=True,
+        query_prefix="search_query: ",
+        document_prefix="search_document: ",
+    ),
+    # Qwen3-Emb-8B: query prefix 效果显著 (cos(bare,q)=0.804)
+    EmbeddingModelConfig("Qwen/Qwen3-Embedding-8B", 4096, 8192, "Qwen3-Emb-8B",
+        supports_dual_tower=True,
+        query_prefix="Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
+        document_prefix="",
+    ),
+    # Qwen3-Emb-8B-Alt: API 返回 500，当前不可用
+    EmbeddingModelConfig("Qwen/Qwen3-Embedding-8B-Alt", 4096, 32768, "Qwen3-Emb-8B-Alt",
+        supports_dual_tower=True,
+        query_prefix="Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
+        document_prefix="",
+    ),
 ]
 
 
@@ -92,6 +141,9 @@ def sanitize_name(model_name: str) -> str:
     return model_name.replace("/", "-").lower()
 
 
-def make_graph_name(model_name: str, dataset_name: str) -> str:
-    """Generate FalkorDB graph name: dataset + '_' + sanitize(model)."""
-    return dataset_name + "_" + sanitize_name(model_name)
+def make_graph_name(model_name: str, dataset_name: str, dual_tower: bool = False) -> str:
+    """Generate FalkorDB graph name: dataset + '_' + sanitize(model) [+ '_dualtower']."""
+    base = sanitize_name(model_name)
+    if dual_tower:
+        base += "_dualtower"
+    return dataset_name + "_" + base
