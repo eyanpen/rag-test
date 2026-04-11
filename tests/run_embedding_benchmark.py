@@ -447,6 +447,7 @@ async def evaluate_predictions(
                     model="BAAI/bge-m3",
                     base_url=config.api_base_url,
                     api_key="no-key",
+                    check_embedding_ctx_length=False,
                 )
             score = await compute_answer_correctness(p.question, p.generated_answer, p.ground_truth, eval_llm, eval_emb)
             acc_scores.append(score)
