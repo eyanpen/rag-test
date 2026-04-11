@@ -93,5 +93,5 @@ def sanitize_name(model_name: str) -> str:
 
 
 def make_graph_name(model_name: str, dataset_name: str) -> str:
-    """Generate FalkorDB graph name: sanitize(model) + '_' + dataset."""
-    return sanitize_name(model_name) + "_" + dataset_name
+    """Generate FalkorDB graph name: dataset + '_' + sanitize(model)."""
+    return dataset_name + "_" + sanitize_name(model_name)
